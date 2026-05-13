@@ -15,8 +15,9 @@ public protocol CollectionViewLayoutStrategy<SectionIdentifier, ItemIdentifier> 
 
     func registerReusableViews(in collectionView: UICollectionView, layout: UICollectionViewLayout)
     func makeLayout(dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionViewLayout
-    func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath) -> UICollectionViewCell
     func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, at indexPath: IndexPath, dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionReusableView
+
+    func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath, factoryProvider: (IndexPath, ItemIdentifier) -> (CellFactory<ItemIdentifier>?)) -> UICollectionViewCell?
 }
 
 

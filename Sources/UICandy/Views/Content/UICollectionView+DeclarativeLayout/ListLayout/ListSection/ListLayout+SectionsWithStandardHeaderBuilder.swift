@@ -80,12 +80,10 @@ public extension ListSection where HeaderType == SectionIdentifier {
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
         header: SectionHeader<SectionIdentifier>,
         footer: SectionFooter<SectionIdentifier>? = nil,
-        cells: [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: predicate,
             header: .standard(header),
-            cells: cells,
             footer: footer
         )
     }
@@ -94,12 +92,10 @@ public extension ListSection where HeaderType == SectionIdentifier {
         identifier: SectionIdentifier,
         header: SectionHeader<SectionIdentifier>,
         footer: SectionFooter<SectionIdentifier>? = nil,
-        cells: [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: { $0 == identifier },
             header: .standard(header),
-            cells: cells,
             footer: footer
         )
     }
@@ -113,13 +109,10 @@ public extension ListSection where HeaderType == SectionIdentifier {
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
         header: SectionHeader<SectionIdentifier>,
         footer: SectionFooter<SectionIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: predicate,
             header: .standard(header),
-            cells: cells(),
             footer: footer
         )
     }
@@ -128,13 +121,10 @@ public extension ListSection where HeaderType == SectionIdentifier {
         identifier: SectionIdentifier,
         header: SectionHeader<SectionIdentifier>,
         footer: SectionFooter<SectionIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: { $0 == identifier },
             header: .standard(header),
-            cells: cells(),
             footer: footer
         )
     }
@@ -142,13 +132,10 @@ public extension ListSection where HeaderType == SectionIdentifier {
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
         header: SectionHeader<SectionIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: predicate,
             header: .standard(header),
-            cells: cells(),
             footer: nil
         )
     }
@@ -156,13 +143,10 @@ public extension ListSection where HeaderType == SectionIdentifier {
     init(
         identifier: SectionIdentifier,
         header: SectionHeader<SectionIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: { $0 == identifier },
             header: .standard(header),
-            cells: cells(),
             footer: nil
         )
     }

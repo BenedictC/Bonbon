@@ -76,28 +76,24 @@ public extension ListSection where HeaderType == ItemIdentifier {
 
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
-        header: ListCell<ItemIdentifier>,
+        header: CellFactory<ItemIdentifier>,
         footer: SectionFooter<SectionIdentifier>? = nil,
-        cells: [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: predicate,
             header: .collapsable(header),
-            cells: cells,
             footer: footer
         )
     }
 
     init(
         identifier: SectionIdentifier,
-        header: ListCell<ItemIdentifier>,
+        header: CellFactory<ItemIdentifier>,
         footer: SectionFooter<SectionIdentifier>? = nil,
-        cells: [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: { $0 == identifier },
             header: .collapsable(header),
-            cells: cells,
             footer: footer
         )
     }
@@ -109,58 +105,46 @@ public extension ListSection where HeaderType == ItemIdentifier {
 
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
-        header: ListCell<ItemIdentifier>,
+        header: CellFactory<ItemIdentifier>,
         footer: () -> SectionFooter<SectionIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: predicate,
             header: .collapsable(header),
-            cells: cells(),
             footer: footer()
         )
     }
 
     init(
         identifier: SectionIdentifier,
-        header: ListCell<ItemIdentifier>,
+        header: CellFactory<ItemIdentifier>,
         footer: () -> SectionFooter<SectionIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: { $0 == identifier },
             header: .collapsable(header),
-            cells: cells(),
             footer: footer()
         )
     }
 
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
-        header: ListCell<ItemIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
+        header: CellFactory<ItemIdentifier>,
     ) {
         self = Self(
             predicate: predicate,
             header: .collapsable(header),
-            cells: cells(),
             footer: nil
         )
     }
 
     init(
         identifier: SectionIdentifier,
-        header: ListCell<ItemIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
+        header: CellFactory<ItemIdentifier>,
     ) {
         self = Self(
             predicate: { $0 == identifier },
             header: .collapsable(header),
-            cells: cells(),
             footer: nil
         )
     }

@@ -75,12 +75,10 @@ public extension ListSection where HeaderType == Void {
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
         footer: SectionFooter<SectionIdentifier>? = nil,
-        cells: [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: predicate,
             header: .none,
-            cells: cells,
             footer: footer
         )
     }
@@ -88,12 +86,10 @@ public extension ListSection where HeaderType == Void {
     init(
         identifier: SectionIdentifier,
         footer: SectionFooter<SectionIdentifier>? = nil,
-        cells: [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: { $0 == identifier },
             header: .none,
-            cells: cells,
             footer: footer
         )
     }
@@ -105,13 +101,10 @@ public extension ListSection where HeaderType == Void {
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
         footer: SectionFooter<SectionIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: predicate,
             header: .none,
-            cells: cells(),
             footer: footer
         )
     }
@@ -119,39 +112,30 @@ public extension ListSection where HeaderType == Void {
     init(
         identifier: SectionIdentifier,
         footer: SectionFooter<SectionIdentifier>,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: { $0 == identifier },
             header: .none,
-            cells: cells(),
             footer: footer
         )
     }
 
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: predicate,
             header: .none,
-            cells: cells(),
             footer: nil
         )
     }
 
     init(
         identifier: SectionIdentifier,
-        @ArrayBuilder<ListCell<ItemIdentifier>>
-        cells: () -> [ListCell<ItemIdentifier>]
     ) {
         self = Self(
             predicate: { $0 == identifier },
             header: .none,
-            cells: cells(),
             footer: nil
         )
     }

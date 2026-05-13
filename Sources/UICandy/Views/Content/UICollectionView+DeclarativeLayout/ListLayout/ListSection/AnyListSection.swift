@@ -8,10 +8,12 @@ public struct AnyListSection<SectionIdentifier: Hashable, ItemIdentifier: Hashab
 
     // MARK: Types
 
+    public typealias Cells = (_ indexPath: IndexPath, ItemIdentifier) -> (CellFactory<ItemIdentifier>?)
+
     public enum HeaderKind {
         case none
         case standard(SectionHeader<SectionIdentifier>)
-        case collapsable(ListCell<ItemIdentifier>)
+        case collapsable(CellFactory<ItemIdentifier>)
     }
 
 
@@ -19,13 +21,11 @@ public struct AnyListSection<SectionIdentifier: Hashable, ItemIdentifier: Hashab
 
     let predicate: ((SectionIdentifier) -> Bool)
     let header: HeaderKind
-    let cells: [ListCell<ItemIdentifier>]
     let footer: SectionFooter<SectionIdentifier>?
 
-    init(predicate: @escaping (SectionIdentifier) -> Bool, header: HeaderKind, cells: [ListCell<ItemIdentifier>], footer: SectionFooter<SectionIdentifier>?) {
+    init(predicate: @escaping (SectionIdentifier) -> Bool, header: HeaderKind, footer: SectionFooter<SectionIdentifier>?) {
         self.predicate = predicate
         self.header = header
-        self.cells = cells
         self.footer = footer
     }
 
@@ -33,9 +33,6 @@ public struct AnyListSection<SectionIdentifier: Hashable, ItemIdentifier: Hashab
     // MARK: Registration
 
     func registerViews(in collectionView: UICollectionView) {
-        for cell in cells {
-            cell.registerCellClass(in: collectionView)
-        }
         switch header {
         case .standard(let header):
             header.registerReusableViews(in: collectionView)

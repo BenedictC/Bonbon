@@ -51,7 +51,9 @@ public struct CompositeLayout<SectionIdentifier: Hashable, ItemIdentifier: Hasha
         preconditionFailure("No sections to represent sectionIdentifier '\(sectionIdentifier)'.")
     }
 
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath) -> UICollectionViewCell {
+    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath, factoryProvider: (IndexPath, ItemIdentifier) -> (CellFactory<ItemIdentifier>?)) -> UICollectionViewCell? {
+    //public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath) -> UICollectionViewCell {
+        "TODO: fix this"
         let section = self.makeSection(for: sectionIdentifier)
         return section.makeCell(for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
     }

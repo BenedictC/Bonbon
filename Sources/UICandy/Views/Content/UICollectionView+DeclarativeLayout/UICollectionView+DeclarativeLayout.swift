@@ -1,58 +1,66 @@
 import UIKit
 
 
-@available(iOS 14, *)
 public extension UICollectionView {
 
-    convenience init<SectionIdentifier: Hashable, ItemIdentifier: Hashable, Strategy: CollectionViewLayoutStrategy>(
-        snapshotCoordinator: CollectionViewSnapshotCoordinator<SectionIdentifier, ItemIdentifier>,
-        delegate: UICollectionViewDelegate? = nil,
-        layout strategyBuilder: () -> Strategy
-    ) where Strategy.SectionIdentifier == SectionIdentifier,
-            Strategy.ItemIdentifier == ItemIdentifier
-    {
-        // Init with placeholder layout
-        self.init(frame: .zero, collectionViewLayout: UICollectionViewLayout())
+    convenience init(
+        collectionViewLayout: UICollectionViewLayout = UICollectionViewLayout(),
+        delegate: UICollectionViewDelegate?
+    ) {
+        self.init(frame: .zero, collectionViewLayout: collectionViewLayout)
+        self.delegate = delegate
+    }
+}
 
-        let strategy = strategyBuilder()
 
-        // Configure dataSource (the dataSource is stored by the snapshotCoordinator)
-        let dataSource = snapshotCoordinator.register(
-            collectionView: self,
-            cellProvider: { collectionView, indexPath, itemIdentifier in
-                let dataSource = collectionView.dataSource as! UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>
-                guard let sectionIdentifier = dataSource.sectionIdentifier(forSectionAtIndex: indexPath.section) else {
-                    preconditionFailure("Invalid section index")
+@available(iOS 15, *)
+public extension CollectionViewLayoutStrategy {
+
+    func makeDataSourceAndSetLayout(
+        for collectionView: UICollectionView,
+        snapshot: NSDiffableDataSourceSnapshot<SectionIdentifier, ItemIdentifier>? = nil,
+        cellProvider: @escaping (IndexPath, ItemIdentifier) -> (CellFactory<ItemIdentifier>?)
+    ) -> CollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier> {
+        "TODO:  Change return type to any CollectionViewTransactionableDiffableDataSource<SectionIdentifier, ItemIdentifier>"
+        // # Configure data
+        let dataSource = CollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>(
+            collectionView: collectionView,
+            cellProvider: { collectionView, indexPath, item in
+                let dataSource = collectionView.dataSource as? UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>
+                let sectionIdentifier = dataSource?.sectionIdentifier(for: indexPath.section)
+                guard let cell = makeCell(for: collectionView, itemIdentifier: item, in: sectionIdentifier!, at: indexPath, factoryProvider: cellProvider) else {
+                    log.fault("Failed to create cell for item at '\(indexPath)' for \(collectionView)). Defaulting to an empty cell. ")
+                    let empty = CellFactory<ItemIdentifier>(
+                        cellClass: UICollectionViewCell.self,
+                        reuseIdentifier: "\(#file):\(#line):\(#column)",
+                        configuration: { _, _, _ in }
+                    )
+                    return empty.makeCell(for: collectionView, indexPath: indexPath, item: item)!
                 }
-                let cell = strategy.makeCell(for: collectionView, itemIdentifier: itemIdentifier, in: sectionIdentifier, at: indexPath)
                 return cell
             }
         )
-        guard let dataSource else {
-            log.error("Failed to register collectionView with snapshot coordinator. CollectionView will not function.")
-            return
+        dataSource.supplementaryViewProvider = { [unowned dataSource] collectionView, elementKind, indexPath in
+            self.makeSupplementaryView(ofKind: elementKind, for: collectionView, at: indexPath, dataSource: dataSource)
         }
-        dataSource.supplementaryViewProvider = { [weak dataSource] collectionView, elementKind, indexPath in
-            guard let dataSource else {
-                fatalError()
-            }
-            let view = strategy.makeSupplementaryView(ofKind: elementKind, for: collectionView, at: indexPath, dataSource: dataSource)
-            return view
-        }
-        dataSource.indexElementsProvider = strategy.behaviors.indexElementsProvider
-        if let reorderHandlers = strategy.behaviors.reorderHandlers {
+        
+        dataSource.indexElementsProvider = self.behaviors.indexElementsProvider
+        if let reorderHandlers = self.behaviors.reorderHandlers {
             dataSource.reorderingHandlers = reorderHandlers
         }
-        if let sectionSnapshotHandlers = strategy.behaviors.sectionSnapshotHandlers {
+        if let sectionSnapshotHandlers = self.behaviors.sectionSnapshotHandlers {
             dataSource.sectionSnapshotHandlers = sectionSnapshotHandlers
         }
 
-        // Configure and store the final layout
-        let layout = strategy.makeLayout(dataSource: dataSource)
-        strategy.registerReusableViews(in: self, layout: layout)
-        self.collectionViewLayout = layout
+        if let snapshot {
+            dataSource.apply(snapshot, animatingDifferences: false)
+        }
 
-        // Configure delegate
-        self.delegate = delegate
+        // # Configure view
+        let layout = self.makeLayout(dataSource: dataSource)
+        self.registerReusableViews(in: collectionView, layout: layout)
+        collectionView.setCollectionViewLayout(layout, animated: false)
+
+        return dataSource
     }
 }

@@ -3,14 +3,14 @@ import Combine
 
 // MARK: - Published Value
 
-public extension ListCell {
+public extension CellFactory {
 
     static func withContent(
         contentBuilder: @escaping (UICollectionViewCell, any CurrentValuePublisher<ItemIdentifier, Never>) -> UIView
-    ) -> ListCell<ItemIdentifier> {
+    ) -> CellFactory<ItemIdentifier> {
         typealias CellType = ValuePublishingCell<ItemIdentifier>
         let reuseIdentifier = UniqueIdentifier("\(CellType.self)").value
-        return ListCell(
+        return CellFactory(
             cellRegistrar: { collectionView in
                 collectionView.register(CellType.self, forCellWithReuseIdentifier: reuseIdentifier)
             },

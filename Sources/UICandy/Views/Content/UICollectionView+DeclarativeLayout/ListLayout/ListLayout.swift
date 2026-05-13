@@ -91,20 +91,16 @@ public struct ListLayout<SectionIdentifier: Hashable, ItemIdentifier: Hashable>:
         preconditionFailure("No sections to represent sectionIdentifier '\(sectionIdentifier)'.")
     }
 
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath) -> UICollectionViewCell {
+    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath, factoryProvider: (IndexPath, ItemIdentifier) -> (CellFactory<ItemIdentifier>?)) -> UICollectionViewCell? {
+    // public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath) -> UICollectionViewCell {
         let section = self.makeSection(for: sectionIdentifier)
         let shouldUseHeaderCell = indexPath.item == 0
         if shouldUseHeaderCell,
            case .collapsable(let headerCell) = section.header {
-            return headerCell.makeCell(with: itemIdentifier, for: collectionView, at: indexPath)!
+            return headerCell.makeCell(for: collectionView, indexPath: indexPath, item: itemIdentifier)!
         }
-        let cells = section.cells
-        for cell in cells {
-            if let cellView = cell.makeCell(with: itemIdentifier, for: collectionView, at: indexPath) {
-                return cellView
-            }
-        }
-        preconditionFailure("Failed to create cell for item at '\(indexPath)'")
+        let cellFactory = factoryProvider(indexPath, itemIdentifier)
+        return cellFactory?.makeCell(for: collectionView, indexPath: indexPath, item: itemIdentifier)
     }
 
     public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, at indexPath: IndexPath, dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionReusableView {
