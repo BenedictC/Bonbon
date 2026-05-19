@@ -3,7 +3,6 @@ import UIKit
 
 // MARK: - systemItem based init
 
-@available(iOS 14, *)
 public extension UIBarButtonItem {
     
     convenience init(systemItem: UIBarButtonItem.SystemItem, style: UIBarButtonItem.Style = .plain, action handler: @MainActor @escaping (Self) -> Void) {
@@ -32,7 +31,6 @@ public extension UIBarButtonItem {
 
 // MARK: - Title + image based init
 
-@available(iOS 14, *)
 public extension UIBarButtonItem {
     
     // # image:

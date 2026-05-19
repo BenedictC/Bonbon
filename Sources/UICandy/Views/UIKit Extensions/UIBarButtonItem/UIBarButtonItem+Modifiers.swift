@@ -42,7 +42,6 @@ public extension UIBarButtonItem {
 }
 
 
-@available(iOS 14, *)
 public extension UIBarButtonItem {
     
     func menu(_ value: UIMenu?) -> Self {
@@ -54,7 +53,6 @@ public extension UIBarButtonItem {
 }
 
 
-@available(iOS 15, *)
 public extension UIBarButtonItem {
     
     func selected(_ value: Bool) -> Self {
@@ -64,7 +62,6 @@ public extension UIBarButtonItem {
 }
 
 
-@available(iOS 16, *)
 public extension UIBarButtonItem {
     
     func hidden(_ value: Bool) -> Self {

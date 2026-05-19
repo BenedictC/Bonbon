@@ -154,7 +154,6 @@ open class _ViewController: UIViewController {
 
 // MARK: - Compile-time conformance check
 
-@available(iOS 15, *)
 private class CompilationCheck: ViewController {
     
     let rootView = UIView() 
