@@ -47,9 +47,7 @@ public struct Cell<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: Group
 
     // MARK: GroupItem
 
-    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
-        return []
-    }
+    public var elementKinds: [String] { [] }
 
     public func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
         nil

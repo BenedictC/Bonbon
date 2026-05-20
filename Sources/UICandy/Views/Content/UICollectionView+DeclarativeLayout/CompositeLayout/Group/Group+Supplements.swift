@@ -32,9 +32,9 @@ public struct SupplementedGroup<SectionIdentifier: Hashable, ItemIdentifier: Has
 
     // MARK: GroupItem
 
-    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
+    public var elementKinds: [String] {
         var elementKinds = Set<String>()
-        elementKinds.formUnion(group.registerReusableViews(in: collectionView))
+        elementKinds.formUnion(group.elementKinds)
 
         for supplement in supplements {
             elementKinds.insert(supplement.elementKind)

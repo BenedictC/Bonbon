@@ -39,11 +39,10 @@ extension AxisGroup {
     // MARK: Group
 
 
-    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
+    public var elementKinds: [String] {
         var elementKinds = Set<String>()
-        for item in items {
-            let elementKind = item.registerReusableViews(in: collectionView)
-            elementKinds.formUnion(elementKind)
+        for item in items {        
+            elementKinds.formUnion(item.elementKinds)
         }
         return Array(elementKinds)
     }

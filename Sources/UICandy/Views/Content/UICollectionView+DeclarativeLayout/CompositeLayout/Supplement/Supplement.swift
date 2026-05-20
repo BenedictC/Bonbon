@@ -56,7 +56,8 @@ public extension Supplement {
         _ viewClass: V.Type,
         size: NSCollectionLayoutSize? = nil,
         containerAnchor: NSCollectionLayoutAnchor,
-        itemAnchor: NSCollectionLayoutAnchor? = nil
+        itemAnchor: NSCollectionLayoutAnchor? = nil,
+        configuration: @escaping (V, IndexPath, SectionIdentifier, ItemIdentifier?) -> Void = { _, _, _, _ in }
     ) {
         let elementKind = UniqueIdentifier("SupplementaryView").value
         let registration = UICollectionView.SupplementaryRegistration<V>(elementKind: elementKind) { view, IndexPath, section in }
@@ -76,7 +77,7 @@ public extension Supplement {
                 return view
             },
             configure: { view, indexPath, sectionIdentifier, itemIdentifier in
-                "TODO: Why aren't we providing the ability to configure the view?"
+               configuration(view as! V, indexPath, sectionIdentifier, itemIdentifier)
             }
         )
     }

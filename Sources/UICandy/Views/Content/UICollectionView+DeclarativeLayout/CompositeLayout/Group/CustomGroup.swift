@@ -23,18 +23,18 @@ public struct CustomGroup<SectionIdentifier: Hashable, ItemIdentifier: Hashable>
 
     // MARK: Group
 
-    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
+    public var elementKinds: [String] {
         var elementKinds = Set<String>()
         for item in groupItems {
-            let elementKind = item.registerReusableViews(in: collectionView)
-            elementKinds.formUnion(elementKind)
+            elementKinds.formUnion(item.elementKinds)
         }
         return Array(elementKinds)
     }
 
     public func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
-        "TODO: "
-        fatalError()
+        let matching = groupItems.first { $0.elementKinds.contains(elementKind) }
+        let registration = matching?.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionIdentifier)
+        return registration
     }
 
     public func makeLayoutGroup(environment: any NSCollectionLayoutEnvironment) -> NSCollectionLayoutGroup {

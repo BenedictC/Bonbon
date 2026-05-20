@@ -7,7 +7,7 @@ public protocol GroupItem<SectionIdentifier, ItemIdentifier> {
     associatedtype SectionIdentifier: Hashable
     associatedtype ItemIdentifier: Hashable
 
-    func registerReusableViews(in collectionView: UICollectionView) -> [String]
+    var elementKinds: [String] { get }
     func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>?
     func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem
 }
@@ -19,10 +19,9 @@ public struct SupplementedGroupItem<SectionIdentifier: Hashable, ItemIdentifier:
     let supplements: [Supplement<SectionIdentifier, ItemIdentifier>]
 
 
-    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
+    public var elementKinds: [String] {
         var elementKinds = Set<String>()
-        let itemElementKinds = groupItem.registerReusableViews(in: collectionView)
-        elementKinds.formUnion(itemElementKinds)
+        elementKinds.formUnion(groupItem.elementKinds)
 
         for supplement in supplements {
             elementKinds.insert(supplement.elementKind)
@@ -56,8 +55,8 @@ public struct AnyGroupItem<SectionIdentifier: Hashable, ItemIdentifier: Hashable
 
     let erased: any GroupItem<SectionIdentifier, ItemIdentifier>
 
-    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
-        erased.registerReusableViews(in: collectionView)
+    public var elementKinds: [String] {
+        erased.elementKinds
     }
 
     public func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {

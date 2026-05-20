@@ -14,9 +14,8 @@ public protocol CollectionViewLayoutStrategy<SectionIdentifier, ItemIdentifier> 
 
     func makeLayout(dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionViewLayout
 
-    @available(*, deprecated, message: "This is only need for decorations because supplementaryViews use registrations and we only need their elementKind")
-    func registerReusableViews(in collectionView: UICollectionView, layout: UICollectionViewLayout) -> [String]
-
+    func registerDecorationViews(in collectionView: UICollectionView, layout: UICollectionViewLayout)
+    var elementKinds: [String] { get }
     func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, dataSource: DiffableDataSource) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>
 }
 

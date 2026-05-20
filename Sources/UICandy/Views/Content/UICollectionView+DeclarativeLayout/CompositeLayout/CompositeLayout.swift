@@ -16,10 +16,7 @@ public struct CompositeLayout<SectionIdentifier: Hashable, ItemIdentifier: Hasha
 
     // MARK: CollectionViewLayoutStrategy
 
-    public func registerReusableViews(in collectionView: UICollectionView, layout: UICollectionViewLayout) -> [String] {
-        if let background = self.background {
-            collectionView.backgroundView = background.view
-        }
+    public var elementKinds: [String] {
         var elementKinds = Set<String>()
 
         for boundarySupplement in boundarySupplements {
@@ -29,6 +26,15 @@ public struct CompositeLayout<SectionIdentifier: Hashable, ItemIdentifier: Hasha
             elementKinds.formUnion(section.elementKinds)
         }
         return Array(elementKinds)
+    }
+
+    public func registerDecorationViews(in collectionView: UICollectionView, layout: UICollectionViewLayout) {
+        if let background = self.background {
+            collectionView.backgroundView = background.view
+        }
+        for section in self.sections {
+            section.registerDecorationViews(in: layout)
+        }
     }
 
     public func makeLayout(dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionViewLayout {
@@ -62,8 +68,7 @@ public struct CompositeLayout<SectionIdentifier: Hashable, ItemIdentifier: Hasha
         if let registration = section.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionID) {
             return registration
         }
-        "TODO: is fatalError correct/most appropriate behaviour?"
-        fatalError()
+        preconditionFailure("No supplementaryRegistration to represent elementKind '\(elementKind)'.")
     }
 
 

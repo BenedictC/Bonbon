@@ -37,12 +37,7 @@ public struct ListLayout<SectionIdentifier: Hashable, ItemIdentifier: Hashable>:
 
     // MARK: CollectionViewLayoutStrategy
 
-    public func registerReusableViews(in collectionView: UICollectionView, layout: UICollectionViewLayout) -> [String] {
-        // Background isn't technically a reusable view but it's convenient to handle it here
-        if let background = self.components.background {
-            collectionView.backgroundView = background.view
-        }
-
+    public var elementKinds: [String] {
         var elementKinds = Set<String>()
         for boundarySupplement in components.boundarySupplements {
             elementKinds.insert(boundarySupplement.elementKind)
@@ -53,6 +48,14 @@ public struct ListLayout<SectionIdentifier: Hashable, ItemIdentifier: Hashable>:
         elementKinds.insert(emptyFooter.elementKind)
 
         return Array(elementKinds)
+    }
+
+    public func registerDecorationViews(in collectionView: UICollectionView, layout: UICollectionViewLayout) {
+        // Background isn't technically a reusable view but it's convenient to handle it here
+        if let background = self.components.background {
+            collectionView.backgroundView = background.view
+        }
+        // Unlike CompositeLayout, ListLayout doesn't have decorations for the sections
     }
 
     public func makeLayout(dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionViewLayout {

@@ -6,7 +6,7 @@ import UIKit
 @MainActor
 public protocol Group<SectionIdentifier, ItemIdentifier>: GroupItem where SectionIdentifier: Hashable, ItemIdentifier: Hashable {
 
-    func registerReusableViews(in collectionView: UICollectionView) -> [String]
+    var elementKinds: [String] { get }
 
     func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>?
 
@@ -37,8 +37,8 @@ public struct AnyGroup<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: G
 
 public extension AnyGroup {
 
-    func registerReusableViews(in collectionView: UICollectionView) -> [String] {
-        erased.registerReusableViews(in: collectionView)
+    var elementKinds: [String] {
+        erased.elementKinds
     }
 
     func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {

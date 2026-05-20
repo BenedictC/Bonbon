@@ -28,11 +28,11 @@ public extension CollectionViewLayoutStrategy {
         )
         // # Create layout
         let layout = self.makeLayout(dataSource: dataSource)
-        let elementKinds = self.registerReusableViews(in: collectionView, layout: layout)
+        self.registerDecorationViews(in: collectionView, layout: layout)
 
         // # Configure dataSource
         dataSource.setSupplementaryElementKinds(
-            elementKinds,
+            self.elementKinds,
             supplementaryRegistrationProvider: { [unowned dataSource] elementKind, indexPath in
                 supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, dataSource: dataSource)
             }

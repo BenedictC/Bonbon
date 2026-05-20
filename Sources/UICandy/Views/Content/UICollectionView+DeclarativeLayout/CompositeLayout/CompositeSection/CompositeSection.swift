@@ -50,7 +50,6 @@ public struct CompositeSection<SectionIdentifier: Hashable, ItemIdentifier: Hash
     // MARK: View registration
 
     func registerDecorationViews(in layout: UICollectionViewLayout) {
-        "TODO: When does this get called?"
         if let background {
             background.registerDecorationView(in: layout)
         }
@@ -58,11 +57,10 @@ public struct CompositeSection<SectionIdentifier: Hashable, ItemIdentifier: Hash
 
     var elementKinds: [String] {
         var elementKinds = Set<String>()
-        "TODO: "
-        //        // Register the cells
-        //        group.registerReusableViews(in: collectionView)
+        if let background {
+            elementKinds.insert(background.elementKind)
+        }
 
-        // Section supplementary
         for boundarySupplement in boundarySupplements {
             elementKinds.insert(boundarySupplement.elementKind)
         }
