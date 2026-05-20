@@ -14,7 +14,7 @@ public struct SupplementaryRegistration<Section: Hashable, Item: Hashable> {
         return view
     }
 
-    public func configureSupplementaryView(_ supplementaryView: UICollectionReusableView, indexPath: IndexPath, section: Section, item: Item) {
+    public func configureSupplementaryView(_ supplementaryView: UICollectionReusableView, indexPath: IndexPath, section: Section, item: Item?) {
         configure(supplementaryView, indexPath, section, item)
     }
 }

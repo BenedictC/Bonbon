@@ -102,10 +102,11 @@ public extension CollectionViewDiffableDataSource {
                 let indexPaths = collectionView.indexPathsForVisibleSupplementaryElements(ofKind: elementKind)
                 return indexPaths.map { (elementKind, $0) }
             }
-            .compactMap { pair -> (String, IndexPath, SectionIdentifierType, ItemIdentifierType)? in
+            .compactMap { pair -> (String, IndexPath, SectionIdentifierType, ItemIdentifierType?)? in
                 let (elementKind, indexPath) = pair
                 let section = sections[indexPath.section]
-                let item = snapshot.itemIdentifiers(inSection: section)[indexPath.item]
+                let items = snapshot.itemIdentifiers(inSection: section)
+                let item = indexPath.item < items.count ? items[indexPath.item] : nil
                 return (elementKind, indexPath, section, item)
             }
 
