@@ -1,64 +1,25 @@
 import UIKit
 
 
-@MainActor
-public struct SectionHeader<SectionIdentifier> {
+public struct SectionHeader<SectionIdentifier: Hashable> {
 
-    // MARK: Types
-
-    public typealias SupplementRegistrar = (UICollectionView) -> Void
-    public typealias SupplementProvider = (String, UICollectionView, IndexPath, SectionIdentifier) -> UICollectionReusableView?
-
-
-    // MARK: Properties
+    public typealias Handler<T> = (T, IndexPath, SectionIdentifier) -> Void
 
     static var elementKind: String { UICollectionView.elementKindSectionHeader }
-    let elementKind = Self.elementKind
-    private let supplementRegistrar: SupplementRegistrar
-    private let supplementProvider: SupplementProvider
+    var elementKind: String { Self.elementKind }
+
+    let dequeue: (UICollectionView, IndexPath, SectionIdentifier) -> UICollectionReusableView
+    let configure: (UICollectionReusableView, IndexPath, SectionIdentifier) -> Void
 
 
-    // MARK: Instance life cycle
-
-    init(
-        supplementRegistrar: @escaping SupplementRegistrar,
-        supplementProvider: @escaping SupplementProvider
-    ) {
-        self.supplementRegistrar = supplementRegistrar
-        self.supplementProvider = supplementProvider
-    }
-
-
-    // MARK:  BoundarySupplement
-
-    public func registerReusableViews(in collectionView: UICollectionView) {
-        supplementRegistrar(collectionView)
-    }
-
-    public func makeLayoutBoundarySupplementaryItem() -> NSCollectionLayoutBoundarySupplementaryItem {
-        let size = NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(44)
-        )
-        let layoutItem = NSCollectionLayoutBoundarySupplementaryItem(
-            layoutSize: size,
-            elementKind: elementKind,
-            alignment: .top,
-            absoluteOffset: .zero
-        )
-        return layoutItem
-    }
-
-    public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, indexPath: IndexPath, value: SectionIdentifier) -> UICollectionReusableView? {
-        guard elementKind == self.elementKind else { return nil }
-        return supplementProvider(elementKind, collectionView, indexPath, value)
-    }
-
-    public func asBoundarySupplement() -> BoundarySupplement<SectionIdentifier> {
-        return BoundarySupplement(
-            supplementRegistrar: registerReusableViews(in:),
-            layoutBoundarySupplementaryItemProvider: makeLayoutBoundarySupplementaryItem,
-            supplementProvider: makeSupplementaryView(ofKind:for:indexPath:value:)
+    func asSupplementaryRegistration<ItemIdentifier>() -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier> {
+        SupplementaryRegistration(
+            dequeue: { (collectionView, indexPath, section: SectionIdentifier, item: ItemIdentifier?) in
+                self.dequeue(collectionView, indexPath, section)
+            },
+            configure: { (view, indexPath, section: SectionIdentifier, item: ItemIdentifier?) in
+                self.configure(view, indexPath, section)
+            }
         )
     }
 }
@@ -69,70 +30,52 @@ public struct SectionHeader<SectionIdentifier> {
 public extension SectionHeader {
 
     init<T: UICollectionReusableView>(
-        viewType: T.Type,
+        viewType: T.Type? = nil,
         configuration: @escaping (T, SectionIdentifier) -> Void
     ) {
-        let elementKind = Self.elementKind
-        let reuseIdentifier = UniqueIdentifier("\(Self.self)").value
-
+        let registration = UICollectionView.SupplementaryRegistration<T>( elementKind: Self.elementKind) { _, _, _ in }
         self.init(
-            supplementRegistrar: { collectionView in
-                collectionView.register(viewType, forSupplementaryViewOfKind: elementKind, withReuseIdentifier: reuseIdentifier)
-            },
-            supplementProvider: { elementKind, collectionView, indexPath, sectionIdentifier in
-                let view = collectionView.dequeueReusableSupplementaryView(
-                    ofKind: elementKind,
-                    withReuseIdentifier: reuseIdentifier,
-                    for: indexPath
-                ) as! T
-                configuration(view, sectionIdentifier)
-                return view
+            dequeue: { collectionView, indexPath, section in
+                collectionView.dequeueConfiguredReusableSupplementary(using: registration, for: indexPath)
+            }, configure: { view, indexPath, section in
+                configuration(view as! T, section)
             }
         )
     }
 
-//    init<T: CollectionReusableView>(
-//        viewType: T.Type,
-//        configuration: @escaping (T) -> Void
-//    ) where T.Item == SectionIdentifier {
-//        let elementKind = Self.elementKind
-//        let reuseIdentifier = UniqueIdentifier("\(Self.self)").value
-//
-//        self.init(
-//            supplementRegistrar: { collectionView in
-//                collectionView.register(viewType, forSupplementaryViewOfKind: elementKind, withReuseIdentifier: reuseIdentifier)
-//            },
-//            supplementProvider: { elementKind, collectionView, indexPath, sectionIdentifier in
-//                let view = collectionView.dequeueReusableSupplementaryView(
-//                    ofKind: elementKind,
-//                    withReuseIdentifier: reuseIdentifier,
-//                    for: indexPath
-//                ) as! T
-//                configuration(view)
-//                view.item = sectionIdentifier
-//                return view
-//            }
-//        )
-//    }
-
-    init<T: UIView>(content: @escaping () -> T) {
-        typealias ViewType = StaticContentReusableCollectionView<T>
-        let elementKind = Self.elementKind
-        let reuseIdentifier = UniqueIdentifier("\(Self.self)").value
-        
+    init<T: UIView>(staticContent: @escaping () -> T) {
+        let registration = UICollectionView.SupplementaryRegistration<ContentCell<T>>(elementKind: Self.elementKind) { _, _, _ in }
         self.init(
-            supplementRegistrar: { collectionView in
-                collectionView.register(ViewType.self, forSupplementaryViewOfKind: elementKind, withReuseIdentifier: reuseIdentifier)
+            dequeue: { collectionView, indexPath, section in
+                collectionView.dequeueConfiguredReusableSupplementary(using: registration, for: indexPath)
             },
-            supplementProvider: { elementKind, collectionView, indexPath, sectionIdentifier in
-                let view = collectionView.dequeueReusableSupplementaryView(
-                    ofKind: elementKind,
-                    withReuseIdentifier: reuseIdentifier,
-                    for: indexPath
-                ) as! ViewType
-                view.setContentIfNeeded(contentBuilder: { _ in content() })
-                return view
+            configure: { view, indexPath, section in
+                let cell = view as! ContentCell<T>
+                if cell.content == nil {
+                    let content = staticContent()
+                    cell.setContentView(content)
+                }
             }
         )
+    }
+}
+
+
+public extension SectionHeader {
+
+    init(configuration: @escaping(_ configuration: inout UIListContentConfiguration, _ section: SectionIdentifier) -> Void) {
+        self.init(viewType: UICollectionViewListCell.self, configuration: { cell, item in
+            var contentConfiguration = (cell.contentConfiguration as? UIListContentConfiguration) ?? cell.defaultContentConfiguration()
+            configuration(&contentConfiguration, item)
+            cell.contentConfiguration = contentConfiguration
+        })
+    }
+
+    init(title: String) {
+        self.init(viewType: UICollectionViewListCell.self, configuration: { cell, item in
+            var configuration = cell.defaultContentConfiguration()
+            configuration.text = title
+            cell.contentConfiguration = configuration
+        })
     }
 }

@@ -21,7 +21,7 @@ open class _CollectionReusableView: UICollectionReusableView, ReuseIdentifiable 
     required public override init(frame: CGRect) {
         super.init(frame: frame)
         Self.initializeBodyHosting(of: self)
-        (self as? ViewStateObserver)?.initializeViewStateObserving()
+        (self as? ViewStateObserver)?.initializeViewStateObserving() 
     }
 
     @available(*, unavailable)
@@ -78,6 +78,12 @@ open class _CollectionReusableView: UICollectionReusableView, ReuseIdentifiable 
 
 
 // MARK: - ViewBodyProvider
+
+extension ViewBodyProvider where Self: _CollectionReusableView {
+
+    public var body: Self { self }
+}
+
 
 extension _CollectionReusableView {
 

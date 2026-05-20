@@ -3,7 +3,6 @@ import UIKit
 
 // MARK: - Layout
 
-@available(iOS 15, *)
 public extension ListLayout {
 
     typealias ListSectionWithoutHeader = ListSection<SectionIdentifier, ItemIdentifier, Void>
@@ -69,7 +68,6 @@ public extension ListLayout {
 
 // MARK: - ListSection
 
-@available(iOS 15, *)
 public extension ListSection where HeaderType == Void {
 
     init(
@@ -84,18 +82,17 @@ public extension ListSection where HeaderType == Void {
     }
 
     init(
-        identifier: SectionIdentifier,
+        identifiers: SectionIdentifier...,
         footer: SectionFooter<SectionIdentifier>? = nil,
     ) {
         self = Self(
-            predicate: { $0 == identifier },
+            predicate: { identifiers.contains($0) },
             header: .none,
             footer: footer
         )
     }
 }
 
-@available(iOS 15, *)
 public extension ListSection where HeaderType == Void {
 
     init(
@@ -110,11 +107,11 @@ public extension ListSection where HeaderType == Void {
     }
 
     init(
-        identifier: SectionIdentifier,
+        identifiers: SectionIdentifier...,
         footer: SectionFooter<SectionIdentifier>,
     ) {
         self = Self(
-            predicate: { $0 == identifier },
+            predicate: { identifiers.contains($0) },
             header: .none,
             footer: footer
         )
@@ -131,10 +128,10 @@ public extension ListSection where HeaderType == Void {
     }
 
     init(
-        identifier: SectionIdentifier,
+        identifiers: SectionIdentifier...,
     ) {
         self = Self(
-            predicate: { $0 == identifier },
+            predicate: { identifiers.contains($0) },
             header: .none,
             footer: nil
         )

@@ -3,13 +3,11 @@ import UIKit
 
 // MARK: - CollectionViewCell
 
-@available(iOS 14, *)
 public typealias CollectionViewCell = _CollectionViewCell
                                     & ItemRepresentable
                                     & ViewBodyProvider
                                     & ViewStateObserver
 
-@available(iOS 14, *)
 open class _CollectionViewCell: UICollectionViewCell, ReuseIdentifiable {
 
     // MARK: Properties
@@ -81,7 +79,6 @@ open class _CollectionViewCell: UICollectionViewCell, ReuseIdentifiable {
 
 // MARK: - ViewBodyProvider
 
-@available(iOS 14, *)
 extension _CollectionViewCell {
 
     public func arrangeBody(_ body: UIView, in container: UIView) {
@@ -101,7 +98,6 @@ extension _CollectionViewCell {
 
 // MARK: - Compile-time conformance check
 
-@available(iOS 14, *)
 private class CompilationCheck: CollectionViewCell {
     let body = UIView()
 }

@@ -1,18 +1,23 @@
 
 @MainActor
 @resultBuilder
-public struct GroupItemsBuilder<ItemIdentifier> {
+public struct GroupItemsBuilder<SectionIdentifier: Hashable, ItemIdentifier: Hashable> {
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
+        []
+    }
+
+    public static func buildBlock(
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [item0.eraseToAnyGroupItem()]
     }
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>,
-        _ item1: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item1: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [
             item0.eraseToAnyGroupItem(),
             item1.eraseToAnyGroupItem()
@@ -20,10 +25,10 @@ public struct GroupItemsBuilder<ItemIdentifier> {
     }
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>,
-        _ item1: some GroupItem<ItemIdentifier>,
-        _ item2: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item1: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item2: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [
             item0.eraseToAnyGroupItem(),
             item1.eraseToAnyGroupItem(),
@@ -32,11 +37,11 @@ public struct GroupItemsBuilder<ItemIdentifier> {
     }
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>,
-        _ item1: some GroupItem<ItemIdentifier>,
-        _ item2: some GroupItem<ItemIdentifier>,
-        _ item3: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item1: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item2: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item3: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [
             item0.eraseToAnyGroupItem(),
             item1.eraseToAnyGroupItem(),
@@ -46,12 +51,12 @@ public struct GroupItemsBuilder<ItemIdentifier> {
     }
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>,
-        _ item1: some GroupItem<ItemIdentifier>,
-        _ item2: some GroupItem<ItemIdentifier>,
-        _ item3: some GroupItem<ItemIdentifier>,
-        _ item4: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item1: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item2: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item3: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item4: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [
             item0.eraseToAnyGroupItem(),
             item1.eraseToAnyGroupItem(),
@@ -62,13 +67,13 @@ public struct GroupItemsBuilder<ItemIdentifier> {
     }
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>,
-        _ item1: some GroupItem<ItemIdentifier>,
-        _ item2: some GroupItem<ItemIdentifier>,
-        _ item3: some GroupItem<ItemIdentifier>,
-        _ item4: some GroupItem<ItemIdentifier>,
-        _ item5: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item1: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item2: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item3: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item4: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item5: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [
             item0.eraseToAnyGroupItem(),
             item1.eraseToAnyGroupItem(),
@@ -80,14 +85,14 @@ public struct GroupItemsBuilder<ItemIdentifier> {
     }
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>,
-        _ item1: some GroupItem<ItemIdentifier>,
-        _ item2: some GroupItem<ItemIdentifier>,
-        _ item3: some GroupItem<ItemIdentifier>,
-        _ item4: some GroupItem<ItemIdentifier>,
-        _ item5: some GroupItem<ItemIdentifier>,
-        _ item6: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item1: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item2: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item3: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item4: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item5: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item6: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [
             item0.eraseToAnyGroupItem(),
             item1.eraseToAnyGroupItem(),
@@ -100,15 +105,15 @@ public struct GroupItemsBuilder<ItemIdentifier> {
     }
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>,
-        _ item1: some GroupItem<ItemIdentifier>,
-        _ item2: some GroupItem<ItemIdentifier>,
-        _ item3: some GroupItem<ItemIdentifier>,
-        _ item4: some GroupItem<ItemIdentifier>,
-        _ item5: some GroupItem<ItemIdentifier>,
-        _ item6: some GroupItem<ItemIdentifier>,
-        _ item7: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item1: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item2: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item3: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item4: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item5: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item6: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item7: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [
             item0.eraseToAnyGroupItem(),
             item1.eraseToAnyGroupItem(),
@@ -122,16 +127,16 @@ public struct GroupItemsBuilder<ItemIdentifier> {
     }
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>,
-        _ item1: some GroupItem<ItemIdentifier>,
-        _ item2: some GroupItem<ItemIdentifier>,
-        _ item3: some GroupItem<ItemIdentifier>,
-        _ item4: some GroupItem<ItemIdentifier>,
-        _ item5: some GroupItem<ItemIdentifier>,
-        _ item6: some GroupItem<ItemIdentifier>,
-        _ item7: some GroupItem<ItemIdentifier>,
-        _ item8: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item1: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item2: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item3: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item4: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item5: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item6: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item7: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item8: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [
             item0.eraseToAnyGroupItem(),
             item1.eraseToAnyGroupItem(),
@@ -146,17 +151,17 @@ public struct GroupItemsBuilder<ItemIdentifier> {
     }
 
     public static func buildBlock(
-        _ item0: some GroupItem<ItemIdentifier>,
-        _ item1: some GroupItem<ItemIdentifier>,
-        _ item2: some GroupItem<ItemIdentifier>,
-        _ item3: some GroupItem<ItemIdentifier>,
-        _ item4: some GroupItem<ItemIdentifier>,
-        _ item5: some GroupItem<ItemIdentifier>,
-        _ item6: some GroupItem<ItemIdentifier>,
-        _ item7: some GroupItem<ItemIdentifier>,
-        _ item8: some GroupItem<ItemIdentifier>,
-        _ item9: some GroupItem<ItemIdentifier>
-    ) -> [AnyGroupItem<ItemIdentifier>] {
+        _ item0: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item1: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item2: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item3: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item4: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item5: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item6: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item7: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item8: some GroupItem<SectionIdentifier, ItemIdentifier>,
+        _ item9: some GroupItem<SectionIdentifier, ItemIdentifier>
+    ) -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>] {
         [
             item0.eraseToAnyGroupItem(),
             item1.eraseToAnyGroupItem(),

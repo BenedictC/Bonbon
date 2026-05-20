@@ -4,14 +4,13 @@ import UIKit
 // MARK: - Core types
 
 @MainActor
-public protocol Group<ItemIdentifier>: GroupItem {
+public protocol Group<SectionIdentifier, ItemIdentifier>: GroupItem where SectionIdentifier: Hashable, ItemIdentifier: Hashable {
 
-    associatedtype ItemIdentifier
+    func registerReusableViews(in collectionView: UICollectionView) -> [String]
 
-    func registerReusableViews(in collectionView: UICollectionView)
+    func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>?
+
     func makeLayoutGroup(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutGroup
-    func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell
-    func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView
 }
 
 
@@ -28,9 +27,9 @@ extension Group {
 
 // MARK: - AnyGroup
 
-public struct AnyGroup<ItemIdentifier>: Group {
+public struct AnyGroup<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: Group {
 
-    let erased: any Group<ItemIdentifier>
+    let erased: any Group<SectionIdentifier, ItemIdentifier>
 }
 
 
@@ -38,20 +37,16 @@ public struct AnyGroup<ItemIdentifier>: Group {
 
 public extension AnyGroup {
 
-    func registerReusableViews(in collectionView: UICollectionView) {
+    func registerReusableViews(in collectionView: UICollectionView) -> [String] {
         erased.registerReusableViews(in: collectionView)
+    }
+
+    func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
+        erased.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionIdentifier)
     }
 
     func makeLayoutGroup(environment: any NSCollectionLayoutEnvironment) -> NSCollectionLayoutGroup {
         erased.makeLayoutGroup(environment: environment)
-    }
-
-    func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell {
-        erased.makeCell(for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-    }
-
-    func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView {
-        erased.makeSupplementaryView(ofKind: elementKind, for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
     }
 }
 
@@ -63,20 +58,12 @@ public extension AnyGroup {
     func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: any NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem {
         erased.makeLayoutGroupItem(defaultSize: defaultSize, environment: environment)
     }
-
-    func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell? {
-        erased.makeCell(for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-    }
-
-    func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView? {
-        erased.makeSupplementaryView(ofKind: elementKind, for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-    }
 }
 
 
 extension Group {
 
-    func eraseToAnyGroup() -> AnyGroup<ItemIdentifier> {
+    func eraseToAnyGroup() -> AnyGroup<SectionIdentifier, ItemIdentifier> {
         AnyGroup(erased: self)
     }
 }

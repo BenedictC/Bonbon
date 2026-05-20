@@ -3,7 +3,6 @@ import UIKit
 
 // MARK: - Layout
 
-@available(iOS 15, *)
 public extension ListLayout {
 
     typealias ListSectionWithStandardHeader = ListSection<SectionIdentifier, ItemIdentifier, SectionIdentifier>
@@ -73,7 +72,6 @@ public extension ListLayout {
 
 // MARK: - ListSection
 
-@available(iOS 15, *)
 public extension ListSection where HeaderType == SectionIdentifier {
 
     init(
@@ -89,12 +87,12 @@ public extension ListSection where HeaderType == SectionIdentifier {
     }
 
     init(
-        identifier: SectionIdentifier,
+        identifiers: SectionIdentifier...,
         header: SectionHeader<SectionIdentifier>,
         footer: SectionFooter<SectionIdentifier>? = nil,
     ) {
         self = Self(
-            predicate: { $0 == identifier },
+            predicate:{ identifiers.contains($0) },
             header: .standard(header),
             footer: footer
         )
@@ -102,7 +100,6 @@ public extension ListSection where HeaderType == SectionIdentifier {
 }
 
 
-@available(iOS 15, *)
 public extension ListSection where HeaderType == SectionIdentifier {
 
     init(
@@ -118,12 +115,12 @@ public extension ListSection where HeaderType == SectionIdentifier {
     }
 
     init(
-        identifier: SectionIdentifier,
+        identifiers: SectionIdentifier...,
         header: SectionHeader<SectionIdentifier>,
         footer: SectionFooter<SectionIdentifier>,
     ) {
         self = Self(
-            predicate: { $0 == identifier },
+            predicate: { identifiers.contains($0) },
             header: .standard(header),
             footer: footer
         )
@@ -141,11 +138,11 @@ public extension ListSection where HeaderType == SectionIdentifier {
     }
 
     init(
-        identifier: SectionIdentifier,
+        identifiers: SectionIdentifier...,
         header: SectionHeader<SectionIdentifier>,
     ) {
         self = Self(
-            predicate: { $0 == identifier },
+            predicate: { identifiers.contains($0) },
             header: .standard(header),
             footer: nil
         )

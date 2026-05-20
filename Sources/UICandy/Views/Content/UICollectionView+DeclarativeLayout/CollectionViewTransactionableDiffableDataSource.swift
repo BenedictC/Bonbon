@@ -1,7 +1,6 @@
 import UIKit
 
 
-@available(iOS 14, *)
 @MainActor
 public protocol CollectionViewTransactionableDiffableDataSource<SectionIdentifierType, ItemIdentifierType> {
 
@@ -17,16 +16,13 @@ public protocol CollectionViewTransactionableDiffableDataSource<SectionIdentifie
 
     func itemIdentifier(for indexPath: IndexPath) -> ItemIdentifierType?
     func indexPath(for itemIdentifier: ItemIdentifierType) -> IndexPath?
-    @available(iOS 15, *)
     func sectionIdentifier(for index: Int) -> SectionIdentifierType?
-    @available(iOS 15, *)
     func index(for sectionIdentifier: SectionIdentifierType) -> Int?
 
     func snapshot() -> Snapshot
     func snapshot(for section: SectionIdentifierType) -> NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>
 
     func description() -> String
-
 
     func enqueue(transaction: @escaping (TransactionContext) async -> Void)
     @discardableResult
@@ -37,12 +33,13 @@ public protocol CollectionViewTransactionableDiffableDataSource<SectionIdentifie
     func enqueue<T>(withMode mode: CollectionViewDiffableDataSourceQueueMode, transaction: @escaping (TransactionContext) async -> T) async -> T
 
     func newSnapshot() -> Snapshot
+
+    func reconfigureSupplementaryViews()
 }
 
 
 // MARK: - CollectionViewDiffableDataSource conformance
 
-@available(iOS 14, *)
 extension CollectionViewDiffableDataSource: CollectionViewTransactionableDiffableDataSource {
 
     public func enqueue(transaction: @escaping (TransactionContext) async -> Void) {

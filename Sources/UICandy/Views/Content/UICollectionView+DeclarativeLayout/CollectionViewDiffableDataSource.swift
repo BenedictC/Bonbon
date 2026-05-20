@@ -3,23 +3,19 @@ import UIKit
 
 public typealias CollectionViewDiffableDataSourceIndexElement = (title: String, indexPath: IndexPath)
 
-public enum CollectionViewDiffableDataSourceUpdateMode {
-    case animated
-    case unanimated
-    @available(iOS 15, *)
-    case reload
-}
 
-
-@available(iOS 14, *)
 public final class CollectionViewDiffableDataSource<SectionIdentifierType: Hashable, ItemIdentifierType: Hashable>: UICollectionViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType> {
 
     // MARK: Types
 
     public typealias Snapshot = NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>
     public typealias SectionSnapshot = NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>
+
     public typealias IndexElement = CollectionViewDiffableDataSourceIndexElement
     public typealias IndexElementsProvider = (NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> [IndexElement]
+
+    typealias SupplementaryViewConfiguration = UICandy.SupplementaryRegistration<SectionIdentifierType, ItemIdentifierType>
+    typealias SupplementaryRegistrationProvider = ((String, IndexPath) -> (SupplementaryRegistration<SectionIdentifierType, ItemIdentifierType>)?)
 
 
     // MARK: Properties
@@ -27,12 +23,18 @@ public final class CollectionViewDiffableDataSource<SectionIdentifierType: Hasha
     public var indexElementsProvider: IndexElementsProvider? {
         didSet { collectionView?.reloadData() }
     }
+    private var cachedIndexElements: [IndexElement]?
 
     private weak var collectionView: UICollectionView?
-    private var cachedIndexElements: [IndexElement]?
+
+    // Visible views refreshing
+    private var supplementaryElementKinds: [String]?
+    private var supplementaryRegistrationProvider: SupplementaryRegistrationProvider?
+
     // Queue
     private var pendingTransactions = [AnyTransaction]()
     private var currentTransaction: AnyTransaction?
+
 
 
     // MARK: Instance life cycle
@@ -67,6 +69,60 @@ public final class CollectionViewDiffableDataSource<SectionIdentifierType: Hasha
 }
 
 
+// MARK: - Supplementary View reconfiguration
+
+public extension CollectionViewDiffableDataSource {
+
+    internal func setSupplementaryElementKinds(
+        _ supplementaryElementKinds: [String],
+        supplementaryRegistrationProvider: @escaping SupplementaryRegistrationProvider
+    ) {
+        self.supplementaryElementKinds = supplementaryElementKinds
+        self.supplementaryRegistrationProvider = supplementaryRegistrationProvider
+    }
+
+    func reconfigureCells() {
+        var fresh = snapshot()
+        fresh.reconfigureItems(fresh.itemIdentifiers)
+        apply(fresh)
+    }
+
+    func reconfigureSupplementaryViews() {
+        guard let collectionView,
+              let supplementaryElementKinds,
+              let supplementaryRegistrationProvider
+        else {
+            return
+        }
+        let snapshot = self.snapshot()
+
+        let sections = snapshot.sectionIdentifiers
+        let supplementaryViewInfoTuples = supplementaryElementKinds
+            .flatMap { elementKind -> [(String, IndexPath)] in
+                let indexPaths = collectionView.indexPathsForVisibleSupplementaryElements(ofKind: elementKind)
+                return indexPaths.map { (elementKind, $0) }
+            }
+            .compactMap { pair -> (String, IndexPath, SectionIdentifierType, ItemIdentifierType)? in
+                let (elementKind, indexPath) = pair
+                let section = sections[indexPath.section]
+                let item = snapshot.itemIdentifiers(inSection: section)[indexPath.item]
+                return (elementKind, indexPath, section, item)
+            }
+
+        for tuple in supplementaryViewInfoTuples {
+            let (elementKind, indexPath, section, item) = tuple
+            guard
+                let view = collectionView.supplementaryView(forElementKind: elementKind, at: indexPath),
+                let configuration = supplementaryRegistrationProvider(elementKind, indexPath)
+            else {
+                continue
+            }
+            configuration.configureSupplementaryView(view, indexPath: indexPath, section: section, item: item)
+        }
+    }
+}
+
+
 // MARK: - Transaction Queue
 
 public enum CollectionViewDiffableDataSourceQueueMode {
@@ -74,8 +130,6 @@ public enum CollectionViewDiffableDataSourceQueueMode {
 }
 
 
-
-@available(iOS 14, *)
 public extension CollectionViewDiffableDataSource {
 
     // MARK: Transaction types
@@ -165,7 +219,6 @@ public extension CollectionViewDiffableDataSource {
 
 // MARK: - Factory
 
-@available(iOS 14, *)
 public extension CollectionViewDiffableDataSource {
 
     func newSnapshot() -> Snapshot {
@@ -201,7 +254,6 @@ public extension NSDiffableDataSourceSnapshot {
         Self()
     }
 
-    @available(iOS 14, *)
     func newSectionSnapshot() -> NSDiffableDataSourceSectionSnapshot<ItemIdentifierType> {
         NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>()
     }

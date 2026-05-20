@@ -3,7 +3,6 @@ import UIKit
 
 // MARK: - CollectionViewLayoutStrategy
 
-@available(iOS 14, *)
 @MainActor
 public protocol CollectionViewLayoutStrategy<SectionIdentifier, ItemIdentifier> {
 
@@ -13,17 +12,17 @@ public protocol CollectionViewLayoutStrategy<SectionIdentifier, ItemIdentifier> 
 
     var behaviors: CollectionViewLayoutBehaviors<SectionIdentifier, ItemIdentifier> { get }
 
-    func registerReusableViews(in collectionView: UICollectionView, layout: UICollectionViewLayout)
     func makeLayout(dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionViewLayout
-    func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, at indexPath: IndexPath, dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionReusableView
 
-    func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath, factoryProvider: (IndexPath, ItemIdentifier) -> (CellFactory<ItemIdentifier>?)) -> UICollectionViewCell?
+    @available(*, deprecated, message: "This is only need for decorations because supplementaryViews use registrations and we only need their elementKind")
+    func registerReusableViews(in collectionView: UICollectionView, layout: UICollectionViewLayout) -> [String]
+
+    func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, dataSource: DiffableDataSource) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>
 }
 
 
 // MARK: - CollectionViewLayoutBehaviors
 
-@available(iOS 14, *)
 public struct CollectionViewLayoutBehaviors<SectionIdentifier: Hashable, ItemIdentifier: Hashable> {
 
     public typealias Snapshot = NSDiffableDataSourceSnapshot<SectionIdentifier, ItemIdentifier>

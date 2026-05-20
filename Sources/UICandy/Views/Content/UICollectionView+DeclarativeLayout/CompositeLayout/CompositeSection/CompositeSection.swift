@@ -3,9 +3,8 @@ import UIKit
 
 // MARK: - CompositeSection
 
-@available(iOS 14, *)
 @MainActor
-public struct CompositeSection<SectionIdentifier: Hashable, ItemIdentifier> {
+public struct CompositeSection<SectionIdentifier: Hashable, ItemIdentifier: Hashable> {
 
     // MARK: Properties
 
@@ -18,8 +17,7 @@ public struct CompositeSection<SectionIdentifier: Hashable, ItemIdentifier> {
     private let visibleItemsInvalidationHandler: NSCollectionLayoutSectionVisibleItemsInvalidationHandler?
     private let boundarySupplements: [BoundarySupplement<SectionIdentifier>]
     private let background: Background?
-    private let group: any Group<ItemIdentifier>
-
+    private let group: any Group<SectionIdentifier, ItemIdentifier>
 
 
     // MARK: Instance life cycle
@@ -34,7 +32,7 @@ public struct CompositeSection<SectionIdentifier: Hashable, ItemIdentifier> {
         visibleItemsInvalidationHandler: NSCollectionLayoutSectionVisibleItemsInvalidationHandler?,
         background: Background?,
         boundarySupplements: [BoundarySupplement<SectionIdentifier>],
-        group: any Group<ItemIdentifier>
+        group: any Group<SectionIdentifier, ItemIdentifier>
     ) {
         self.predicate = predicate
         self.orthogonalScrollingBehavior = orthogonalScrollingBehavior
@@ -52,18 +50,31 @@ public struct CompositeSection<SectionIdentifier: Hashable, ItemIdentifier> {
     // MARK: View registration
 
     func registerDecorationViews(in layout: UICollectionViewLayout) {
+        "TODO: When does this get called?"
         if let background {
             background.registerDecorationView(in: layout)
         }
     }
 
-    func registerReusableViews(in collectionView: UICollectionView) {
-        // Register the cells
-        group.registerReusableViews(in: collectionView)
+    var elementKinds: [String] {
+        var elementKinds = Set<String>()
+        "TODO: "
+        //        // Register the cells
+        //        group.registerReusableViews(in: collectionView)
+
         // Section supplementary
         for boundarySupplement in boundarySupplements {
-            boundarySupplement.registerReusableViews(in: collectionView)
+            elementKinds.insert(boundarySupplement.elementKind)
         }
+        return Array(elementKinds)
+    }
+
+    func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
+        let matchingBoundarySupplement = boundarySupplements.first { $0.elementKind == elementKind }
+        if let matchingBoundarySupplement {
+            return matchingBoundarySupplement.asSupplementaryRegistration()
+        }
+        return group.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionIdentifier)
     }
 
 
@@ -106,32 +117,11 @@ public struct CompositeSection<SectionIdentifier: Hashable, ItemIdentifier> {
         return section
     }
 
-
-    // MARK: View creation
-
-    func makeSupplementaryView(forElementKind elementKind: String, in collectionView: UICollectionView, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> UICollectionReusableView? {
-        for boundarySupplement in boundarySupplements {
-            let view = boundarySupplement.makeSupplementaryView(ofKind: elementKind, for: collectionView, value: sectionIdentifier, at: indexPath)
-            if let view {
-                return view
-            }
-        }
-        return nil
-    }
-
-    func makeSupplementaryView(forElementKind elementKind: String, in collectionView: UICollectionView, indexPath: IndexPath, itemIdentifier: ItemIdentifier) -> UICollectionReusableView? {
-        group.makeSupplementaryView(ofKind: elementKind, for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-    }
-
-    func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell {
-        group.makeCell(for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-    }
 }
 
 
 // MARK: - Factories
 
-@available(iOS 14, *)
 public extension CompositeSection {
 
     // with trailing closure
@@ -146,7 +136,7 @@ public extension CompositeSection {
         @ArrayBuilder<BoundarySupplement<SectionIdentifier>>
         boundarySupplements: () -> [BoundarySupplement<SectionIdentifier>] = { [] },
         background: Background? = nil,
-        group: () -> some Group<ItemIdentifier>
+        group: () -> some Group<SectionIdentifier, ItemIdentifier>
     ) {
         self = CompositeSection(
             predicate: predicate,
@@ -166,7 +156,6 @@ public extension CompositeSection {
 
 // MARK: With identifier
 
-@available(iOS 14, *)
 public extension CompositeSection {
 
     // with trailing closure
@@ -181,7 +170,7 @@ public extension CompositeSection {
         @ArrayBuilder<BoundarySupplement<SectionIdentifier>>
         boundarySupplements: () -> [BoundarySupplement<SectionIdentifier>] = { [] },
         background: Background? = nil,
-        group: () -> some Group<ItemIdentifier>
+        group: () -> some Group<SectionIdentifier, ItemIdentifier>
     ) {
         self.init(
             predicate: { $0 == identifier },

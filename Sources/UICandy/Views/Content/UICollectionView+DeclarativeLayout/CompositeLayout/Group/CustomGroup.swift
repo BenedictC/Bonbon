@@ -1,18 +1,19 @@
 import UIKit
 
+
 @MainActor
-public struct CustomGroup<ItemIdentifier>: Group {
+public struct CustomGroup<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: Group {
 
     let size: NSCollectionLayoutSize?
-    let groupItems: [AnyGroupItem<ItemIdentifier>]
+    let groupItems: [AnyGroupItem<SectionIdentifier, ItemIdentifier>]
     let layoutItemsProvider: NSCollectionLayoutGroupCustomItemProvider
 
 
     public init(
         size: NSCollectionLayoutSize? = nil,
         layoutItemsProvider: @escaping NSCollectionLayoutGroupCustomItemProvider,
-        @GroupItemsBuilder<AnyGroupItem<ItemIdentifier>>
-        items: () -> [AnyGroupItem<ItemIdentifier>]
+        @GroupItemsBuilder<SectionIdentifier, ItemIdentifier>
+        items: () -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>]
     ) {
         self.size = size
         self.layoutItemsProvider = layoutItemsProvider
@@ -22,10 +23,18 @@ public struct CustomGroup<ItemIdentifier>: Group {
 
     // MARK: Group
 
-    public func registerReusableViews(in collectionView: UICollectionView) {
-        for cell in groupItems {
-            cell.registerReusableViews(in: collectionView)
+    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
+        var elementKinds = Set<String>()
+        for item in groupItems {
+            let elementKind = item.registerReusableViews(in: collectionView)
+            elementKinds.formUnion(elementKind)
         }
+        return Array(elementKinds)
+    }
+
+    public func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
+        "TODO: "
+        fatalError()
     }
 
     public func makeLayoutGroup(environment: any NSCollectionLayoutEnvironment) -> NSCollectionLayoutGroup {
@@ -33,26 +42,10 @@ public struct CustomGroup<ItemIdentifier>: Group {
         return NSCollectionLayoutGroup.custom(layoutSize: size, itemProvider: layoutItemsProvider)
     }
 
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell {
-        fatalError()
-    }
-
-    public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView {
-        fatalError()
-    }
-
 
     // MARK: GroupItem
 
     public func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem {
-        fatalError()
-    }
-
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell? {
-        fatalError()
-    }
-
-    public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView? {
         fatalError()
     }
 }

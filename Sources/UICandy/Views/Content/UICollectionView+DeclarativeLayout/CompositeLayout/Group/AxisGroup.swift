@@ -7,12 +7,12 @@ public protocol AxisGroup: Group {
 
     static var axis: AxisGroupAxis { get }
     var groupSize: NSCollectionLayoutSize? { get }
-    var items: [AnyGroupItem<ItemIdentifier>] { get }
+    var items: [AnyGroupItem<SectionIdentifier, ItemIdentifier>] { get }
     var layoutGroupItemsProvider: LayoutGroupItemsProvider { get }
 
     init(
         groupSize: NSCollectionLayoutSize?,
-        items: [AnyGroupItem<ItemIdentifier>],
+        items: [AnyGroupItem<SectionIdentifier, ItemIdentifier>],
         layoutGroupItemsProvider: @escaping LayoutGroupItemsProvider
     )
 }
@@ -38,10 +38,24 @@ extension AxisGroup {
 
     // MARK: Group
 
-    public func registerReusableViews(in collectionView: UICollectionView) {
+
+    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
+        var elementKinds = Set<String>()
         for item in items {
-            item.registerReusableViews(in: collectionView)
+            let elementKind = item.registerReusableViews(in: collectionView)
+            elementKinds.formUnion(elementKind)
         }
+        return Array(elementKinds)
+    }
+
+    public func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
+        for item in self.items {
+            let registration = item.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionIdentifier)
+            if let registration {
+                return registration
+            }
+        }
+        return nil
     }
 
     public func makeLayoutGroup(environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutGroup {
@@ -53,20 +67,6 @@ extension AxisGroup {
         case .horizontal:
             return NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: subItems)
         }
-    }
-
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell {
-        for item in self.items {
-            let cell = item.makeCell(for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-            if let cell {
-                return cell
-            }
-        }
-        preconditionFailure("Failed to create cell for '\(itemIdentifier)' at \(indexPath)")
-    }
-
-    public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView {
-        fatalError()
     }
 
 
@@ -82,20 +82,6 @@ extension AxisGroup {
             return NSCollectionLayoutGroup.horizontal(layoutSize: size, subitems: subItems)
         }
     }
-
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell? {
-        fatalError()
-    }
-
-    public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView? {
-        for item in items {
-            let view = item.makeSupplementaryView(ofKind: elementKind, for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-            if let view {
-                return view
-            }
-        }
-        return nil
-    }
 }
 
 
@@ -104,8 +90,8 @@ public extension AxisGroup {
     init(
         size groupSize: NSCollectionLayoutSize? = nil,
         numberOfItems: Int? = nil,
-        @GroupItemsBuilder<ItemIdentifier>
-        items itemsBuilder: () -> [AnyGroupItem<ItemIdentifier>]
+        @GroupItemsBuilder<SectionIdentifier, ItemIdentifier>
+        items itemsBuilder: () -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>]
     ) {
         let items = itemsBuilder()
         let itemsCount = numberOfItems ?? items.count
@@ -122,8 +108,8 @@ public extension AxisGroup {
 
     init(
         minimumColumnWidth: CGFloat,
-        @GroupItemsBuilder<ItemIdentifier>
-        items itemsBuilder: () -> [AnyGroupItem<ItemIdentifier>]
+        @GroupItemsBuilder<SectionIdentifier, ItemIdentifier>
+        items itemsBuilder: () -> [AnyGroupItem<SectionIdentifier, ItemIdentifier>]
     ) {
         let items = itemsBuilder()
         let axis = Self.axis

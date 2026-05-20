@@ -2,9 +2,9 @@
 public extension GroupItem {
 
     func supplements(
-        @ArrayBuilder<Supplement<ItemIdentifier>>
-        _ supplementsBuilder: () -> [Supplement<ItemIdentifier>]
-    ) -> SupplementedGroupItem<ItemIdentifier> {
+        @ArrayBuilder<Supplement<SectionIdentifier, ItemIdentifier>>
+        _ supplementsBuilder: () -> [Supplement<SectionIdentifier, ItemIdentifier>]
+    ) -> SupplementedGroupItem<SectionIdentifier, ItemIdentifier> {
         let supplements = supplementsBuilder()
         return SupplementedGroupItem(groupItem: self.eraseToAnyGroupItem(), supplements: supplements)
     }

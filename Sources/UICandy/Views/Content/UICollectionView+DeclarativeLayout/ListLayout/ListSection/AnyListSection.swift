@@ -8,12 +8,10 @@ public struct AnyListSection<SectionIdentifier: Hashable, ItemIdentifier: Hashab
 
     // MARK: Types
 
-    public typealias Cells = (_ indexPath: IndexPath, ItemIdentifier) -> (CellFactory<ItemIdentifier>?)
-
     public enum HeaderKind {
         case none
         case standard(SectionHeader<SectionIdentifier>)
-        case collapsable(CellFactory<ItemIdentifier>)
+        case collapsable
     }
 
 
@@ -32,32 +30,36 @@ public struct AnyListSection<SectionIdentifier: Hashable, ItemIdentifier: Hashab
 
     // MARK: Registration
 
-    func registerViews(in collectionView: UICollectionView) {
+    var elementKinds: [String] {
+        var elementKinds = [String]()
         switch header {
         case .standard(let header):
-            header.registerReusableViews(in: collectionView)
-        case .collapsable(let cell):
-            cell.registerCellClass(in: collectionView)
+            elementKinds.append(header.elementKind)
+        case .collapsable:
+            break
         case .none:
             break
         }
-        footer?.registerReusableViews(in: collectionView)
+        if let footer {
+            elementKinds.append(footer.elementKind)
+        }
+        return elementKinds
     }
 
 
     // MARK: View creation
 
-    func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, at indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> UICollectionReusableView? {
+    func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
         switch elementKind {
         case UICollectionView.elementKindSectionHeader:
             guard case .standard(let header) = header else {
                 return nil
             }
-            return header.makeSupplementaryView(ofKind: elementKind, for: collectionView, indexPath: indexPath, value: sectionIdentifier)
+            return header.asSupplementaryRegistration()
 
         case UICollectionView.elementKindSectionFooter:
-            return footer?.makeSupplementaryView(ofKind: elementKind, for: collectionView, indexPath: indexPath, value: sectionIdentifier)
-            
+            return footer?.asSupplementaryRegistration()
+
         default:
             return nil
         }

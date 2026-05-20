@@ -3,7 +3,6 @@ import UIKit
 
 // MARK: - Layout
 
-@available(iOS 15, *)
 public extension ListLayout {
 
     typealias ListSectionWithCollapsableHeader = ListSection<SectionIdentifier, ItemIdentifier, ItemIdentifier>
@@ -71,80 +70,72 @@ public extension ListLayout {
 
 // MARK: - ListSection
 
-@available(iOS 15, *)
 public extension ListSection where HeaderType == ItemIdentifier {
 
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
-        header: CellFactory<ItemIdentifier>,
         footer: SectionFooter<SectionIdentifier>? = nil,
     ) {
         self = Self(
             predicate: predicate,
-            header: .collapsable(header),
+            header: .collapsable,
             footer: footer
         )
     }
 
     init(
         identifier: SectionIdentifier,
-        header: CellFactory<ItemIdentifier>,
         footer: SectionFooter<SectionIdentifier>? = nil,
     ) {
         self = Self(
             predicate: { $0 == identifier },
-            header: .collapsable(header),
+            header: .collapsable,
             footer: footer
         )
     }
 }
 
 
-@available(iOS 15, *)
 public extension ListSection where HeaderType == ItemIdentifier {
 
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
-        header: CellFactory<ItemIdentifier>,
         footer: () -> SectionFooter<SectionIdentifier>,
     ) {
         self = Self(
             predicate: predicate,
-            header: .collapsable(header),
+            header: .collapsable,
             footer: footer()
         )
     }
 
     init(
-        identifier: SectionIdentifier,
-        header: CellFactory<ItemIdentifier>,
+        identifiers: SectionIdentifier...,
         footer: () -> SectionFooter<SectionIdentifier>,
     ) {
         self = Self(
-            predicate: { $0 == identifier },
-            header: .collapsable(header),
+            predicate: { identifiers.contains($0) },
+            header: .collapsable,
             footer: footer()
         )
     }
 
     init(
         predicate: @escaping ((SectionIdentifier) -> Bool) = { _ in true },
-        header: CellFactory<ItemIdentifier>,
     ) {
         self = Self(
             predicate: predicate,
-            header: .collapsable(header),
+            header: .collapsable,
             footer: nil
         )
     }
 
     init(
-        identifier: SectionIdentifier,
-        header: CellFactory<ItemIdentifier>,
+        identifiers: SectionIdentifier...,
     ) {
         self = Self(
-            predicate: { $0 == identifier },
-            header: .collapsable(header),
+            predicate: { identifiers.contains($0) },
+            header: .collapsable,
             footer: nil
         )
     }

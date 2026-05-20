@@ -2,27 +2,41 @@ import UIKit
 
 
 @MainActor
-public protocol GroupItem<ItemIdentifier> {
+public protocol GroupItem<SectionIdentifier, ItemIdentifier> {
 
-    associatedtype ItemIdentifier
+    associatedtype SectionIdentifier: Hashable
+    associatedtype ItemIdentifier: Hashable
 
-    func registerReusableViews(in collectionView: UICollectionView)
+    func registerReusableViews(in collectionView: UICollectionView) -> [String]
+    func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>?
     func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem
-    func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell?
-    func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView?
 }
 
 
-public struct SupplementedGroupItem<ItemIdentifier>: GroupItem {
+public struct SupplementedGroupItem<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: GroupItem {
 
-    let groupItem: AnyGroupItem<ItemIdentifier>
-    let supplements: [Supplement<ItemIdentifier>]
+    let groupItem: AnyGroupItem<SectionIdentifier, ItemIdentifier>
+    let supplements: [Supplement<SectionIdentifier, ItemIdentifier>]
 
-    public func registerReusableViews(in collectionView: UICollectionView) {
-        groupItem.registerReusableViews(in: collectionView)
+
+    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
+        var elementKinds = Set<String>()
+        let itemElementKinds = groupItem.registerReusableViews(in: collectionView)
+        elementKinds.formUnion(itemElementKinds)
+
         for supplement in supplements {
-            supplement.registerReusableViews(in: collectionView)
+            elementKinds.insert(supplement.elementKind)
         }
+        return Array(elementKinds)
+    }
+
+    public func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
+        let itemRegistration = groupItem.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionIdentifier)
+        if let itemRegistration {
+            return itemRegistration
+        }
+        let matching = supplements.first { $0.elementKind == elementKind }
+        return matching?.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionIdentifier)
     }
 
     public func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem {
@@ -33,50 +47,32 @@ public struct SupplementedGroupItem<ItemIdentifier>: GroupItem {
         revised.contentInsets = initial.contentInsets
         return revised
     }
-
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell? {
-        groupItem.makeCell(for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-    }
-
-    public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView? {
-        for supplement in supplements {
-            let view = supplement.makeSupplementaryView(ofKind: elementKind, for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-            if let view {
-                return view
-            }
-        }
-        return nil
-    }
 }
 
 
 // MARK: AnyGroupItem
 
-public struct AnyGroupItem<ItemIdentifier>: GroupItem {
+public struct AnyGroupItem<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: GroupItem {
 
-    let erased: any GroupItem<ItemIdentifier>
+    let erased: any GroupItem<SectionIdentifier, ItemIdentifier>
 
-    public func registerReusableViews(in collectionView: UICollectionView) {
+    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
         erased.registerReusableViews(in: collectionView)
+    }
+
+    public func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
+        erased.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionIdentifier)
     }
 
     public func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem {
         erased.makeLayoutGroupItem(defaultSize: defaultSize, environment: environment)
-    }
-
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell? {
-        erased.makeCell(for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
-    }
-
-    public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView? {
-        erased.makeSupplementaryView(ofKind: elementKind, for: collectionView, itemIdentifier: itemIdentifier, at: indexPath)
     }
 }
 
 
 public extension GroupItem {
 
-    func eraseToAnyGroupItem() -> AnyGroupItem<ItemIdentifier> {
+    func eraseToAnyGroupItem() -> AnyGroupItem<SectionIdentifier, ItemIdentifier> {
         AnyGroupItem(erased: self)
     }
 }

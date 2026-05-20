@@ -3,20 +3,26 @@ import UIKit
 
 // MARK: - ListLayout
 
-@available(iOS 15, *)
 public struct ListLayout<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: CollectionViewLayoutStrategy {
+
+    // MARK: Types
 
     private class EmptyFooter<T>: CollectionReusableView {
         var item: T?
         let body = Spacer(height: 0)
     }
 
+
+    // MARK: Properties
+
     let appearance: UICollectionLayoutListConfiguration.Appearance
     let components: ListLayoutComponents<SectionIdentifier, ItemIdentifier>
     public let behaviors: CollectionViewLayoutBehaviors<SectionIdentifier, ItemIdentifier>
 
-    private let emptyFooter = SectionFooter<SectionIdentifier>(viewType: EmptyFooter<SectionIdentifier>.self)
+    private let emptyFooter = SectionFooter<SectionIdentifier> { (cell: EmptyFooter<SectionIdentifier>, _) in }
 
+
+    // MARK: Instance life cycle
 
     internal init(
         appearance: UICollectionLayoutListConfiguration.Appearance,
@@ -28,17 +34,25 @@ public struct ListLayout<SectionIdentifier: Hashable, ItemIdentifier: Hashable>:
         self.behaviors = behaviors
     }
 
-    public func registerReusableViews(in collectionView: UICollectionView, layout: UICollectionViewLayout) {
+
+    // MARK: CollectionViewLayoutStrategy
+
+    public func registerReusableViews(in collectionView: UICollectionView, layout: UICollectionViewLayout) -> [String] {
+        // Background isn't technically a reusable view but it's convenient to handle it here
         if let background = self.components.background {
             collectionView.backgroundView = background.view
         }
+
+        var elementKinds = Set<String>()
         for boundarySupplement in components.boundarySupplements {
-            boundarySupplement.registerReusableViews(in: collectionView)
+            elementKinds.insert(boundarySupplement.elementKind)
         }
         for section in components.sections {
-            section.registerViews(in: collectionView)
+            elementKinds.formUnion(section.elementKinds)
         }
-        emptyFooter.registerReusableViews(in: collectionView)
+        elementKinds.insert(emptyFooter.elementKind)
+
+        return Array(elementKinds)
     }
 
     public func makeLayout(dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionViewLayout {
@@ -91,24 +105,11 @@ public struct ListLayout<SectionIdentifier: Hashable, ItemIdentifier: Hashable>:
         preconditionFailure("No sections to represent sectionIdentifier '\(sectionIdentifier)'.")
     }
 
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath, factoryProvider: (IndexPath, ItemIdentifier) -> (CellFactory<ItemIdentifier>?)) -> UICollectionViewCell? {
-    // public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, in sectionIdentifier: SectionIdentifier, at indexPath: IndexPath) -> UICollectionViewCell {
-        let section = self.makeSection(for: sectionIdentifier)
-        let shouldUseHeaderCell = indexPath.item == 0
-        if shouldUseHeaderCell,
-           case .collapsable(let headerCell) = section.header {
-            return headerCell.makeCell(for: collectionView, indexPath: indexPath, item: itemIdentifier)!
-        }
-        let cellFactory = factoryProvider(indexPath, itemIdentifier)
-        return cellFactory?.makeCell(for: collectionView, indexPath: indexPath, item: itemIdentifier)
-    }
-
-    public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, at indexPath: IndexPath, dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionReusableView {
+    public func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, dataSource: CollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier> {
         // # Layout supplementary views
         for boundarySupplement in components.boundarySupplements {
-            let supplementView = boundarySupplement.makeSupplementaryView(ofKind: elementKind, for: collectionView, value: (), at: indexPath)
-            if let supplementView {
-                return supplementView
+            if boundarySupplement.elementKind == elementKind {
+                return boundarySupplement.asSupplementaryRegistration()
             }
         }
 
@@ -117,14 +118,13 @@ public struct ListLayout<SectionIdentifier: Hashable, ItemIdentifier: Hashable>:
             preconditionFailure("Invalid section index")
         }
         let section = makeSection(for: sectionIdentifier)
-        let view = section.makeSupplementaryView(ofKind: elementKind, for: collectionView, at: indexPath, sectionIdentifier: sectionIdentifier)
-        if let view {
-            return view
+        let registration = section.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionIdentifier)
+        if let registration {
+            return registration
         }
         let isEmptyFooter = elementKind == emptyFooter.elementKind
-        if isEmptyFooter,
-           let footer = emptyFooter.makeSupplementaryView(ofKind: elementKind, for: collectionView, indexPath: indexPath, value: sectionIdentifier) {
-            return footer
+        if isEmptyFooter {
+           return emptyFooter.asSupplementaryRegistration()
         }
         preconditionFailure("Failed to create supplementary view of elementKind '\(elementKind)' for indexPath '\(indexPath)'")
     }
@@ -133,7 +133,6 @@ public struct ListLayout<SectionIdentifier: Hashable, ItemIdentifier: Hashable>:
 
 // MARK: - ListLayoutComponents
 
-@available(iOS 15, *)
 public struct ListLayoutComponents<SectionIdentifier: Hashable, ItemIdentifier: Hashable> {
 
     let configuration: LayoutConfiguration?
@@ -145,7 +144,6 @@ public struct ListLayoutComponents<SectionIdentifier: Hashable, ItemIdentifier: 
 
 // MARK: - LayoutConfiguration
 
-@available(iOS 15, *)
 public struct LayoutConfiguration {
 
     public struct Configuration {

@@ -2,42 +2,34 @@ import UIKit
 
 
 @MainActor
-public struct Supplement<Value> {
+public struct Supplement<SectionIdentifier: Hashable, ItemIdentifier: Hashable> {
 
     // MARK: Types
 
-    public typealias SupplementRegister = (UICollectionView) -> Void
     public typealias LayoutSupplementaryItemProvider = (NSCollectionLayoutSize) -> NSCollectionLayoutSupplementaryItem
-    public typealias SupplementProvider = (String, UICollectionView, IndexPath, Value) -> UICollectionReusableView?
+    public typealias Handler = (UICollectionView, String, IndexPath, ItemIdentifier) -> UICollectionReusableView?
 
 
     // MARK: Properties
 
     let elementKind: String
-    private let supplementRegistrar: SupplementRegister
     private let layoutSupplementaryItemProvider: LayoutSupplementaryItemProvider
-    private let supplementProvider: SupplementProvider
+    private let dequeue: (UICollectionView, IndexPath, SectionIdentifier, ItemIdentifier?) -> UICollectionReusableView
+    private let configure: (UICollectionReusableView, IndexPath, SectionIdentifier, ItemIdentifier?) -> Void
 
 
     // MARK: Instance life cycle
 
     init(
         elementKind: String,
-        supplementRegistrar: @escaping SupplementRegister,
         layoutSupplementaryItemProvider: @escaping LayoutSupplementaryItemProvider,
-        supplementProvider: @escaping SupplementProvider
+        dequeue: @escaping (UICollectionView, IndexPath, SectionIdentifier, ItemIdentifier?) -> UICollectionReusableView,
+        configure: @escaping (UICollectionReusableView, IndexPath, SectionIdentifier, ItemIdentifier?) -> Void,
     ) {
         self.elementKind = elementKind
-        self.supplementRegistrar = supplementRegistrar
         self.layoutSupplementaryItemProvider = layoutSupplementaryItemProvider
-        self.supplementProvider = supplementProvider
-    }
-
-
-    // MARK: View registration
-
-    func registerReusableViews(in collectionView: UICollectionView) {
-        supplementRegistrar(collectionView)
+        self.dequeue = dequeue
+        self.configure = configure
     }
 
 
@@ -47,11 +39,45 @@ public struct Supplement<Value> {
         layoutSupplementaryItemProvider(defaultSize)
     }
 
+    func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
+        SupplementaryRegistration(
+            dequeue: dequeue,
+            configure: configure
+        )
+    }
+}
 
-    // MARK: View creation
 
-    func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: Value, at indexPath: IndexPath) -> UICollectionReusableView? {
-        guard elementKind == self.elementKind else { return nil }
-        return supplementProvider(elementKind, collectionView, indexPath, itemIdentifier)
+// MARK: - ReusableViewConfigurable
+
+public extension Supplement {
+
+    init<V: UICollectionReusableView>(
+        _ viewClass: V.Type,
+        size: NSCollectionLayoutSize? = nil,
+        containerAnchor: NSCollectionLayoutAnchor,
+        itemAnchor: NSCollectionLayoutAnchor? = nil
+    ) {
+        let elementKind = UniqueIdentifier("SupplementaryView").value
+        let registration = UICollectionView.SupplementaryRegistration<V>(elementKind: elementKind) { view, IndexPath, section in }
+
+        self.init(
+            elementKind: elementKind,
+            layoutSupplementaryItemProvider: { defaultSize in
+                let size = size ?? defaultSize
+                if let itemAnchor {
+                    return NSCollectionLayoutSupplementaryItem(layoutSize: size, elementKind: elementKind, containerAnchor: containerAnchor, itemAnchor: itemAnchor)
+                } else {
+                    return NSCollectionLayoutSupplementaryItem(layoutSize: size, elementKind: elementKind, containerAnchor: containerAnchor)
+                }
+            },
+            dequeue: { collectionView, indexPath, _, _ in
+                let view = collectionView.dequeueConfiguredReusableSupplementary(using: registration, for: indexPath)
+                return view
+            },
+            configure: { view, indexPath, sectionIdentifier, itemIdentifier in
+                "TODO: Why aren't we providing the ability to configure the view?"
+            }
+        )
     }
 }

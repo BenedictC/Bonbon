@@ -1,20 +1,16 @@
 import UIKit
 
 @MainActor
-public struct CompositeCell<ItemIdentifier>: GroupItem {
+public struct Cell<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: GroupItem {
 
     // MARK: Types
 
-    public typealias CellRegister = (UICollectionView) -> Void
-    public typealias CellProvider = (UICollectionView, IndexPath, ItemIdentifier) -> UICollectionViewCell?
     public typealias LayoutGroupItemProvider = (_ size: NSCollectionLayoutSize, _ environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem
     public typealias Predicate = (_ indexPath: IndexPath, _ item: ItemIdentifier) -> Bool // Used by factories
 
 
     // MARK: Properties
 
-    let cellRegistrar: CellRegister
-    let cellProvider: CellProvider
     let layoutGroupItemProvider: LayoutGroupItemProvider
 
 
@@ -22,12 +18,8 @@ public struct CompositeCell<ItemIdentifier>: GroupItem {
 
     @MainActor
     public init(
-        cellRegistrar: @escaping (UICollectionView) -> Void,
-        cellProvider: @escaping CellProvider,
         layoutGroupItemProvider: LayoutGroupItemProvider? = nil // It would be nicer to have a default argument but the compiler thinks the value breaks isolation despite everything being @MainActor
     ) {
-        self.cellRegistrar = cellRegistrar
-        self.cellProvider = cellProvider
         self.layoutGroupItemProvider = layoutGroupItemProvider ?? Self.makeLayoutGroupItemProvider()
     }
 
@@ -55,19 +47,15 @@ public struct CompositeCell<ItemIdentifier>: GroupItem {
 
     // MARK: GroupItem
 
-    public func registerReusableViews(in collectionView: UICollectionView) {
-        cellRegistrar(collectionView)
+    public func registerReusableViews(in collectionView: UICollectionView) -> [String] {
+        return []
+    }
+
+    public func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
+        nil
     }
 
     public func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem {
         layoutGroupItemProvider(defaultSize, environment)
-    }
-
-    public func makeCell(for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionViewCell? {
-        cellProvider(collectionView, indexPath, itemIdentifier)
-    }
-
-    public func makeSupplementaryView(ofKind elementKind: String, for collectionView: UICollectionView, itemIdentifier: ItemIdentifier, at indexPath: IndexPath) -> UICollectionReusableView? {
-        nil
     }
 }

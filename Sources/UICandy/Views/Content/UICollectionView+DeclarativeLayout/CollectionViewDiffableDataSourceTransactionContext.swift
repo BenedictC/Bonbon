@@ -1,7 +1,6 @@
 import UIKit
 
 
-@available(iOS 14, *)
 @MainActor
 public struct CollectionViewDiffableDataSourceTransactionContext<SectionIdentifierType: Hashable, ItemIdentifierType: Hashable> {
 
@@ -26,12 +25,10 @@ public struct CollectionViewDiffableDataSourceTransactionContext<SectionIdentifi
         dataSource.indexPath(for: itemIdentifier)
     }
 
-    @available(iOS 15, *)
     public func sectionIdentifier(for index: Int) -> SectionIdentifierType? {
         dataSource.sectionIdentifier(for: index)
     }
 
-    @available(iOS 15, *)
     public func index(for sectionIdentifier: SectionIdentifierType) -> Int? {
         dataSource.index(for: sectionIdentifier)
     }
@@ -57,7 +54,6 @@ public struct CollectionViewDiffableDataSourceTransactionContext<SectionIdentifi
         }
     }
 
-    @available(iOS 15, *)
     public func applySnapshotUsingReloadData(_ snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) async {
         await dataSource.applySnapshotUsingReloadData(snapshot)
     }
