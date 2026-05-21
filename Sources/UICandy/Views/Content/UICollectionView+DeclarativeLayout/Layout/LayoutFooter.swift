@@ -23,7 +23,7 @@ public struct LayoutFooter {
     public init<T: UICollectionReusableView>(
         configure: @escaping (T) -> Void
     ) {
-        let registration = UICollectionView.SupplementaryRegistration<T>(elementKind: Self.elementKind, handler: { _, _, _ in })
+        let registration = UICollectionView.SupplementaryRegistration<T>(elementKind: Self.elementKind, handler: { (_: T, _, _) in })
         self.dequeue = { collectionView, indexPath in
             let view = collectionView.dequeueConfiguredReusableSupplementary(using: registration, for: indexPath)
             configure(view)
@@ -45,7 +45,7 @@ public struct LayoutFooter {
         let layoutItem = NSCollectionLayoutBoundarySupplementaryItem(
             layoutSize: size,
             elementKind: elementKind,
-            alignment: .top,
+            alignment: .bottom,
             absoluteOffset: .zero
         )
         return layoutItem
@@ -53,10 +53,9 @@ public struct LayoutFooter {
 
     public func asBoundarySupplement() -> BoundarySupplement<Void> {
         BoundarySupplement(
+            dequeue: { (collectionView, indexPath, _) in dequeue(collectionView, indexPath) },
+            configure: { view, _, _ in configure(view) },
             layoutBoundarySupplementaryItemProvider: makeLayoutBoundarySupplementaryItem,
-            handler: { view, indexPath, _ in
-                configure(view)
-            }
         )
     }
 }

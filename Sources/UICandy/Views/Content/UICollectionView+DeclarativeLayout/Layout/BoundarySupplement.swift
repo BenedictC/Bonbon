@@ -21,6 +21,16 @@ public struct BoundarySupplement<Value> {
     
     // MARK: Instance life cycle
 
+    init(
+        dequeue: @escaping (UICollectionView, IndexPath, Value) -> UICollectionReusableView,
+        configure: @escaping (UICollectionReusableView, IndexPath, Value) -> Void,
+        layoutBoundarySupplementaryItemProvider: @escaping LayoutBoundarySupplementaryItemProvider,
+    ) {
+        self.dequeue = dequeue
+        self.configure = configure
+        self.layoutBoundarySupplementaryItemProvider = layoutBoundarySupplementaryItemProvider
+    }
+
     init<T: UICollectionReusableView>(
         layoutBoundarySupplementaryItemProvider: @escaping LayoutBoundarySupplementaryItemProvider,
         handler: @escaping Handler<T>
