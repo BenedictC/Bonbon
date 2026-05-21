@@ -111,14 +111,6 @@ public struct Invalidating<Value> {
 
 // MARK: - Optional handling
 
-public protocol _AnyOptional {
-
-    static var none: Self { get }
-}
-
-extension Optional: _AnyOptional { }
-
-
 public extension Invalidating where Value: _AnyOptional {
 
     init(_ invalidations: Invalidation...) {
