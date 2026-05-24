@@ -3,7 +3,6 @@ import UIKit
 
 // MARK: - ViewState
 
-
 @MainActor
 @propertyWrapper
 public final class ViewState<Value>: BaseViewState {
@@ -45,6 +44,7 @@ public final class ViewState<Value>: BaseViewState {
 
     // MARK: Instance life cycle
 
+    @available(*, deprecated)
     public init(wrappedValue: Value) {
         self.value = wrappedValue
         super.init()
