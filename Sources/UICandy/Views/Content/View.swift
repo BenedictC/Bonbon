@@ -36,15 +36,15 @@ open class _View: UIView {
         }
     }
 
-    open override func updateConstraints() {
+    open override func layoutSubviews() {
         performUpdateViewProperties()
-        super.updateConstraints()
+        super.layoutSubviews()
     }
 
     @available(iOS, deprecated: 26, message: "Call setNeedsUpdateProperties() instead.")
     open func setNeedsUpdateViewProperties() {
         isUpdateViewPropertiesNeeded = true
-        setNeedsUpdateConstraints()
+        setNeedsLayout()
     }
 
     open func updateViewPropertiesIfNeeded() {
@@ -64,12 +64,6 @@ open class _View: UIView {
 
         // Perform update
         updateViewProperties()
-
-        let didMutateViewStateDuringPropagation = isUpdateViewPropertiesNeeded
-        if didMutateViewStateDuringPropagation {
-            (self as? ViewStateObserver)?.warnOfReentrantViewStatePropagation()
-            isUpdateViewPropertiesNeeded = false
-        }
     }
 }
 

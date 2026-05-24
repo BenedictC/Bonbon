@@ -67,12 +67,6 @@ open class _CollectionViewCell: UICollectionViewCell, ReuseIdentifiable {
 
         // Perform update
         updateViewProperties()
-
-        let didMutateViewStateDuringPropagation = isUpdateViewPropertiesNeeded
-        if didMutateViewStateDuringPropagation {
-            (self as? ViewStateObserver)?.warnOfReentrantViewStatePropagation()
-            isUpdateViewPropertiesNeeded = false
-        }
     }
 }
 

@@ -114,15 +114,15 @@ open class _ViewController: UIViewController {
 
     // MARK: Layout
 
-    open override func updateViewConstraints() {
+    open override func viewWillLayoutSubviews() {
         performUpdateViewProperties()
-        super.updateViewConstraints()
+        super.viewWillLayoutSubviews()
     }
 
     @available(iOS, deprecated: 26, message: "Call setNeedsUpdateProperties() instead.")
     open func setNeedsUpdateViewProperties() {
         isUpdateViewPropertiesNeeded = true
-        view.setNeedsUpdateConstraints()
+        view.setNeedsLayout()
     }
 
     open func updateViewPropertiesIfNeeded() {
@@ -141,13 +141,7 @@ open class _ViewController: UIViewController {
         isUpdateViewPropertiesNeeded = false
 
         // Perform update
-        updateViewProperties()
-
-        let didMutateViewStateDuringPropagation = isUpdateViewPropertiesNeeded
-        if didMutateViewStateDuringPropagation {
-            (self as? ViewStateObserver)?.warnOfReentrantViewStatePropagation()
-            isUpdateViewPropertiesNeeded = false
-        }
+        updateViewProperties()        
     }
 }
 

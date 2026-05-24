@@ -117,29 +117,6 @@ open class _Control: UIControl {
         sendActions(for: Self.stateDidChangeEvent)
     }
     
-    
-    // MARK: Layout
-
-    open override func layoutSubviews() {
-        super.layoutSubviews()
-
-        if isUpdateViewPropertiesNeeded {
-        isUpdateViewPropertiesNeeded = false
-
-            // Perform update
-            updateViewProperties()
-
-            let didMutateViewStateDuringPropagation = isUpdateViewPropertiesNeeded
-            if didMutateViewStateDuringPropagation {
-                (self as? ViewStateObserver)?.warnOfReentrantViewStatePropagation()
-                isUpdateViewPropertiesNeeded = false
-            }
-        }
-    }
-
-
-    // MARK: Layout
-
     public func viewStateDidChange() {
         setNeedsUpdateViewProperties()
         if #available(iOS 26, *) {
@@ -147,15 +124,18 @@ open class _Control: UIControl {
         }
     }
 
-    open override func updateConstraints() {
+
+    // MARK: Layout
+
+    open override func layoutSubviews() {
+        super.layoutSubviews()
         performUpdateViewProperties()
-        super.updateConstraints()
     }
 
     @available(iOS, deprecated: 26, message: "Call setNeedsUpdateProperties() instead.")
     open func setNeedsUpdateViewProperties() {
         isUpdateViewPropertiesNeeded = true
-        setNeedsUpdateConstraints()
+        setNeedsLayout()
     }
 
     open func updateViewPropertiesIfNeeded() {
@@ -175,12 +155,6 @@ open class _Control: UIControl {
 
         // Perform update
         updateViewProperties()
-
-        let didMutateViewStateDuringPropagation = isUpdateViewPropertiesNeeded
-        if didMutateViewStateDuringPropagation {
-            (self as? ViewStateObserver)?.warnOfReentrantViewStatePropagation()
-            isUpdateViewPropertiesNeeded = false
-        }
     }
 }
 
