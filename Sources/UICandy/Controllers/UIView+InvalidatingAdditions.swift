@@ -19,11 +19,23 @@ public extension _View {
         public struct ViewProperties: UIViewInvalidating {
 
             public func invalidate(view: UIView) {
-                guard let view = view as? _View else {
-                    runtimeWarn("Attempted to invalided viewProperties of view that does not inherit from UICandy._View. Invalidation is not possible.")
+                if let view = view as? _View {
+                    view.setNeedsUpdateViewProperties()
                     return
                 }
-                view.setNeedsUpdateViewProperties()
+                if let view = view as? _Control {
+                    view.setNeedsUpdateViewProperties()
+                    return
+                }
+                if let view = view as? _CollectionViewCell {
+                    view.setNeedsUpdateViewProperties()
+                    return
+                }
+                if let view = view as? _CollectionReusableView {
+                    view.setNeedsUpdateViewProperties()
+                    return
+                }
+                runtimeWarn("Attempted to invalidate viewProperties of view that does not inherit from UICandy._View. Invalidation is not possible.")
             }
         }
     }
