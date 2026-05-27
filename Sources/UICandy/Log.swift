@@ -6,21 +6,28 @@ import Foundation
 
 @available(*, deprecated, message: "Use log.info/debug/error/fault instead.")
 internal func print(_ items: Any..., separator: String = " ", terminator: String = "\n") {
-    let message = UICandyLogger.makeMessage(items, separator: separator, terminator: terminator)
+    let message = Logger.makeMessage(items, separator: separator, terminator: terminator)
     Swift.print(message)
 }
 
 
 // MARK: - Logger
 
-let log = UICandyLogger()
+let log = Logger()
 
 
-struct UICandyLogger {
+struct Logger {
 
     // MARK: Properties
 
-    private static let osLog = OSLog(subsystem: Bundle.main.bundleIdentifier ?? "UICandy", category: "UICandy")
+    private static let osLog = {
+        var fullyQualifiedTypeName: String = ""
+        debugPrint(Logger.self, to: &fullyQualifiedTypeName)
+        let moduleName = fullyQualifiedTypeName.components(separatedBy: ".").first ?? "<Unknown module>"
+
+        let subsystem = Bundle.main.bundleIdentifier ?? moduleName
+        return OSLog(subsystem: subsystem, category: moduleName)
+    }()
 
     
     // MARK: Message creation
@@ -52,7 +59,7 @@ struct UICandyLogger {
     }
 
     private func log(type: OSLogType, _ items: [Any], separator: String = " ", terminator: String = "\n") {
-        let message = Self.makeMessage(items, separator: separator, terminator: terminator)
-        os_log(type, log: Self.osLog, "%@", message)
+        let message = Logger.makeMessage(items, separator: separator, terminator: terminator)
+        os_log(type, log: Logger.osLog, "%@", message)
     }
 }
