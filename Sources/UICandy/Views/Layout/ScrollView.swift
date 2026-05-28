@@ -1,12 +1,12 @@
 import UIKit
 
 
-public class ScrollView<T: UIView>: UIScrollView {
+open class ScrollView<T: UIView>: UIScrollView {
 
     // MARK: - Properties
 
-    public let axes: Axis
-    public let content: T
+    public final let axes: Axis
+    public final let content: T
 
 
     // MARK: - Instance life cycle
