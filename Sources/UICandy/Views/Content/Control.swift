@@ -3,7 +3,7 @@ import UIKit
 
 // MARK: - View
 
-public typealias Control = _Control & ViewBodyProvider & ViewStateObserver
+public typealias Control = _Control & ViewBodyProvider
 
 
 extension UIControl.Event {
@@ -54,7 +54,6 @@ open class _Control: UIControl {
         self.hitTestHandler = Self.makeDefaultHitTestProvider()
         super.init(frame: .zero)
         UIView.initializeBodyHosting(of: self)
-        (self as? ViewStateObserver)?.initializeViewStateObserving()
     }
     
     @available(*, unavailable)
@@ -115,13 +114,6 @@ open class _Control: UIControl {
     
     private func notifyOfStateChange() {
         sendActions(for: Self.stateDidChangeEvent)
-    }
-    
-    public func viewStateDidChange() {
-        setNeedsUpdateViewProperties()
-        if #available(iOS 26, *) {
-            setNeedsUpdateProperties()
-        }
     }
 
 

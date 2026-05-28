@@ -6,8 +6,6 @@ import UIKit
 public typealias CollectionReusableView = _CollectionReusableView
                                         & ItemRepresentable
                                         & ViewBodyProvider
-                                        & ViewStateObserver
-
 
 open class _CollectionReusableView: UICollectionReusableView, ReuseIdentifiable {
 
@@ -21,7 +19,6 @@ open class _CollectionReusableView: UICollectionReusableView, ReuseIdentifiable 
     required public override init(frame: CGRect) {
         super.init(frame: frame)
         Self.initializeBodyHosting(of: self)
-        (self as? ViewStateObserver)?.initializeViewStateObserving() 
     }
 
     @available(*, unavailable)
@@ -31,13 +28,6 @@ open class _CollectionReusableView: UICollectionReusableView, ReuseIdentifiable 
 
 
     // MARK: Layout
-
-    public func viewStateDidChange() {
-        setNeedsUpdateViewProperties()
-        if #available(iOS 26, *) {
-            setNeedsUpdateProperties()
-        }
-    }
 
     open override func layoutSubviews() {
         performUpdateViewProperties()

@@ -17,7 +17,7 @@ public protocol ViewControllerRequirements: _ViewControllerRequirements {
 
 
 @MainActor
-public protocol _ViewControllerRequirements: _ViewController, ViewStateObserver {
+public protocol _ViewControllerRequirements: _ViewController {
     var _rootView: UIView { get }
     func awake()
 }
@@ -84,8 +84,6 @@ open class _ViewController: UIViewController {
         if shouldSetBackground {
             self.view.backgroundColor = .systemBackground
         }
-
-        (self as? ViewStateObserver)?.initializeViewStateObserving()
     }
 
     private func edgesIgnoringSafeArea(for view: UIView) -> (requiresContainer: Bool, edgesToIgnore: UIRectEdge) {
@@ -99,16 +97,6 @@ open class _ViewController: UIViewController {
             return edgesIgnoringSafeArea(for: subview)
         }
         return (true, [])
-    }
-
-
-    // MARK: ViewState
-
-    public func viewStateDidChange() {
-        setNeedsUpdateViewProperties()
-        if #available(iOS 26, *) {
-            setNeedsUpdateProperties()
-        }
     }
 
 

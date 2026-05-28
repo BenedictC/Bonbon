@@ -1,7 +1,7 @@
 import UIKit
 
 
-public typealias View = _View & ViewBodyProvider & ViewStateObserver
+public typealias View = _View & ViewBodyProvider
 
 
 // MARK: - Implementation
@@ -18,7 +18,6 @@ open class _View: UIView {
     public init() {
         super.init(frame: .zero)
         Self.initializeBodyHosting(of: self)
-        (self as? ViewStateObserver)?.initializeViewStateObserving()
     }
 
     @available(*, unavailable)
@@ -28,13 +27,6 @@ open class _View: UIView {
 
 
     // MARK: Layout
-
-    public func viewStateDidChange() {
-        setNeedsUpdateViewProperties()
-        if #available(iOS 26, *) {
-            setNeedsUpdateProperties()
-        }
-    }
 
     open override func layoutSubviews() {
         performUpdateViewProperties()
