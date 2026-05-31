@@ -35,7 +35,7 @@ public extension _View {
                     view.setNeedsUpdateViewProperties()
                     return
                 }
-                runtimeWarn("Attempted to invalidate viewProperties of view that does not inherit from UICandy._View. Invalidation is not possible.")
+                runtimeWarn("Attempted to invalidate viewProperties of view that does not inherit from Bonbon._View. Invalidation is not possible.")
             }
         }
     }

@@ -1,6 +1,6 @@
 import XCTest
-import UICandy
+import Bonbon
 
 
 @MainActor
-final class UICandyTests: XCTestCase { }
+final class BonbonTests: XCTestCase { }

@@ -14,7 +14,7 @@ public final class CollectionViewDiffableDataSource<SectionIdentifierType: Hasha
     public typealias IndexElement = CollectionViewDiffableDataSourceIndexElement
     public typealias IndexElementsProvider = (NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> [IndexElement]
 
-    typealias SupplementaryViewConfiguration = UICandy.SupplementaryRegistration<SectionIdentifierType, ItemIdentifierType>
+    typealias SupplementaryViewConfiguration = Bonbon.SupplementaryRegistration<SectionIdentifierType, ItemIdentifierType>
     typealias SupplementaryRegistrationProvider = ((String, IndexPath) -> (SupplementaryRegistration<SectionIdentifierType, ItemIdentifierType>)?)
 
 

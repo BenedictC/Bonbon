@@ -1,6 +1,6 @@
 import Foundation
 import UIKit
-import UICandy
+import Bonbon
 
 
 final class ScrollingContentLayout<Content: UIView>: LayoutView {
