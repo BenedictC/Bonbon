@@ -17,16 +17,8 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-//        .package(url: "https://github.com/apple/swift-syntax.git", from: "509.0.0"),
     ],
     targets: [
-        // .macro(
-        //     name: "MacrosPlugin",
-        //     dependencies: [
-        //         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-        //         .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
-        //     ]
-        // ),
 
         .target(
             name: "UICandy",

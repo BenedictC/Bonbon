@@ -1,11 +1,6 @@
 # TODO
+
 - Update demo
-
-## ViewState
-- Register ViewState on load of host
-- Allow additional hosts to register with a ViewState
-- Mutable and immutable ViewState
-
 
 ## CollectionViewLayout
 - Layout BoundarySupplement 
@@ -28,14 +23,14 @@
 - CustomGroup
 
 
+- CellRegistration additions
+
+
 - Remaining UIKit modifiers
     - GestureRecognizers
     - UIMenu, UIAction, UISwipeAction (and UICommand?)
     - Any others?
 
-- ViewControllers
-    - UINavigationItem.searchController ???
-    
 - Animation!
     
 - Localization
@@ -43,19 +38,8 @@
     
 - Accessibility?
     
-- Rationalize ViewController init. 
-- Rationalize View init
-- Rationalize CollectionView factory
-    
 - Debug helpers?
-    - Bug: calls to cancellableStorage during awake cause an erroneous runtime warning
     - Check if a view is being added multiple times during its parent's view's init
-
-- Bug in UIKit or UICandy?: 
-    When: a ViewController is not inside a UINavigationController 
-        and the ViewController's rootView is a ScrollView (or UIScrollView)
-        and the content of the scrollView does not vertically fill the scrollView 
-    Then: the ScrollView fails to adjust its contentInset to avoid the top safe area
 
 
 ## Documentation
