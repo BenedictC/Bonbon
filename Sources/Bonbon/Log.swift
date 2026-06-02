@@ -1,4 +1,4 @@
-@_exported import struct os.Logger
+import struct os.Logger
 import Foundation
 
 
