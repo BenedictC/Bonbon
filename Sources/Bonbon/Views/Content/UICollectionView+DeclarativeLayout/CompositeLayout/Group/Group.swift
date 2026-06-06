@@ -6,6 +6,8 @@ import UIKit
 @MainActor
 public protocol Group<SectionIdentifier, ItemIdentifier>: GroupItem where SectionIdentifier: Hashable, ItemIdentifier: Hashable {
 
+    typealias LayoutGroupProvider = (_ environment: any NSCollectionLayoutEnvironment) -> NSCollectionLayoutGroup
+
     var elementKinds: [String] { get }
 
     func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>?
@@ -14,52 +16,17 @@ public protocol Group<SectionIdentifier, ItemIdentifier>: GroupItem where Sectio
 }
 
 
+// MARK: - GroupItem default implementation
+
 extension Group {
 
-    static var defaultGroupSize: NSCollectionLayoutSize {
-        NSCollectionLayoutSize(
-            widthDimension: .fractionalWidth(1),
-            heightDimension: .estimated(100)
-        )
+    public func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem {
+        makeLayoutGroup(environment: environment)
     }
 }
 
 
-// MARK: - AnyGroup
-
-public struct AnyGroup<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: Group {
-
-    let erased: any Group<SectionIdentifier, ItemIdentifier>
-}
-
-
-// MARK: Group
-
-public extension AnyGroup {
-
-    var elementKinds: [String] {
-        erased.elementKinds
-    }
-
-    func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>? {
-        erased.supplementaryRegistration(for: collectionView, elementKind: elementKind, indexPath: indexPath, sectionIdentifier: sectionIdentifier)
-    }
-
-    func makeLayoutGroup(environment: any NSCollectionLayoutEnvironment) -> NSCollectionLayoutGroup {
-        erased.makeLayoutGroup(environment: environment)
-    }
-}
-
-
-// MARK: - GroupItem
-
-public extension AnyGroup {
-
-    func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: any NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem {
-        erased.makeLayoutGroupItem(defaultSize: defaultSize, environment: environment)
-    }
-}
-
+// MARK: - Type erasure
 
 extension Group {
 

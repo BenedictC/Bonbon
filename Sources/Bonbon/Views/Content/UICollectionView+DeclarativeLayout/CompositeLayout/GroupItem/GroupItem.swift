@@ -7,6 +7,8 @@ public protocol GroupItem<SectionIdentifier, ItemIdentifier> {
     associatedtype SectionIdentifier: Hashable
     associatedtype ItemIdentifier: Hashable
 
+    typealias LayoutGroupItemsProvider = (any NSCollectionLayoutEnvironment) -> [NSCollectionLayoutItem]
+
     var elementKinds: [String] { get }
     func supplementaryRegistration(for collectionView: UICollectionView, elementKind: String, indexPath: IndexPath, sectionIdentifier: SectionIdentifier) -> SupplementaryRegistration<SectionIdentifier, ItemIdentifier>?
     func makeLayoutGroupItem(defaultSize: NSCollectionLayoutSize, environment: NSCollectionLayoutEnvironment) -> NSCollectionLayoutItem

@@ -23,6 +23,13 @@ public struct CustomGroup<SectionIdentifier: Hashable, ItemIdentifier: Hashable>
 
     // MARK: Group
 
+    static var defaultGroupSize: NSCollectionLayoutSize {
+        NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .estimated(100)
+        )
+    }
+    
     public var elementKinds: [String] {
         var elementKinds = Set<String>()
         for item in groupItems {
