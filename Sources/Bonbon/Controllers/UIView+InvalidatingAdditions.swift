@@ -31,10 +31,15 @@ public extension _View {
                     view.setNeedsUpdateViewProperties()
                     return
                 }
+                if let view = view as? _CollectionViewListCell {
+                    view.setNeedsUpdateViewProperties()
+                    return
+                }
                 if let view = view as? _CollectionReusableView {
                     view.setNeedsUpdateViewProperties()
                     return
                 }
+
                 runtimeWarn("Attempted to invalidate viewProperties of view that does not inherit from Bonbon._View. Invalidation is not possible.")
             }
         }
