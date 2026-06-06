@@ -25,6 +25,24 @@ public struct SectionHeader<SectionIdentifier: Hashable> {
 }
 
 
+public extension SectionHeader {
+
+    var asBoundarySupplement: BoundarySupplement<SectionIdentifier> {
+        BoundarySupplement(
+            dequeue: dequeue,
+            configure: configure,
+            layoutBoundarySupplementaryItemProvider: {
+                NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)),
+                    elementKind: elementKind,
+                    alignment: .top
+                )
+            }
+        )
+    }
+}
+
+
 // MARK: - Inits
 
 public extension SectionHeader {

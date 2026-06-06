@@ -24,6 +24,23 @@ public struct SectionFooter<SectionIdentifier: Hashable> {
     }
 }
 
+public extension SectionFooter {
+
+    var asBoundarySupplement: BoundarySupplement<SectionIdentifier> {
+        BoundarySupplement(
+            dequeue: dequeue,
+            configure: configure,
+            layoutBoundarySupplementaryItemProvider: {
+                NSCollectionLayoutBoundarySupplementaryItem(
+                    layoutSize: .init(widthDimension: .fractionalWidth(1), heightDimension: .estimated(44)),
+                    elementKind: elementKind,
+                    alignment: .bottom
+                )
+            }
+        )
+    }
+}
+
 
 // MARK: - Inits
 
