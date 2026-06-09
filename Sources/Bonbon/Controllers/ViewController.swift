@@ -10,9 +10,9 @@ public typealias ViewController = _ViewController & ViewControllerRequirements
 
 @MainActor
 public protocol ViewControllerRequirements: _ViewControllerRequirements {
-    associatedtype View: UIView
+    associatedtype RootView: UIView
     
-    var rootView: View { get }
+    var rootView: RootView { get }
 }
 
 
