@@ -6,7 +6,7 @@ import Combine
 
 class DemoFlowController: FlowController {
 
-    lazy var containerViewController = UITabBarController {
+    lazy var contentViewController = UITabBarController {
         UINavigationController {
             FormViewController()
         }.configure { $0.tabBarItem.title = "Form" }

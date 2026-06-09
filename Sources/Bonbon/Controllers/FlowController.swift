@@ -11,12 +11,9 @@ public typealias FlowController = _FlowController & FlowControllerRequirements
 @MainActor
 public protocol FlowControllerRequirements: ViewControllerRequirements, _FlowControllerRequirements {
 
-    associatedtype ContainerViewController: UIViewController = UINavigationController
-    associatedtype RootViewController: UIViewController
-    associatedtype View = UIView
+    associatedtype ContentViewController: UIViewController = UINavigationController
 
-    var containerViewController: ContainerViewController { get }
-    var rootViewController: RootViewController { get } // containerVC is used if none is set
+    var contentViewController: ContentViewController { get }
 }
 
 
@@ -24,115 +21,97 @@ public protocol FlowControllerRequirements: ViewControllerRequirements, _FlowCon
 
 @MainActor
 public protocol _FlowControllerRequirements: _FlowController, _ViewControllerRequirements {
-    
-    var _containerViewController: UIViewController { get }
-    var _rootViewController: UIViewController { get }
-    var childViewContainer: UIView { get }
+
+    var _contentViewController: UIViewController { get }
 }
 
 
 public extension FlowControllerRequirements {
 
-    var _containerViewController: UIViewController { containerViewController }
-    var _rootViewController: UIViewController { rootViewController }
-    var childViewContainer: UIView { rootView }
-
     var _rootView: UIView { rootView }
-    var rootView: View {
-        guard isViewLoaded else {
-            return View()
+}
+
+
+public extension FlowControllerRequirements where Self: _FlowController {
+
+    var _contentViewController: UIViewController { contentViewController }
+}
+
+/// Creates and configures a  NavigationController if one is not explicit set. Allows the vc to be declared with only the RootViewController
+public extension FlowControllerRequirements where Self: _FlowController, ContentViewController: UINavigationController {
+
+    var contentViewController: ContentViewController {
+        // If we all ready have the container then we're done
+        if let defaultContainerViewController = defaultContentViewController as? ContentViewController {
+            return defaultContainerViewController
         }
-        guard let view = view as? View else {
-            preconditionFailure("\(type(of: self)).view is of unexpected type. Expected \(View.self) but found \(type(of: view)).")
+        // Create and store the container
+        let contentViewController = ContentViewController()
+        defaultContentViewController = contentViewController
+        return contentViewController
+    }
+}
+
+
+public extension FlowControllerRequirements {
+
+    var rootView: UIView {
+        if let defaultRootView {
+            return defaultRootView
         }
-        return view
+        let rootView = UIView()
+        rootView.backgroundColor = .systemBackground
+        let contentView = _contentViewController.view!
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        rootView.addSubview(contentView)
+        NSLayoutConstraint.activate([
+            contentView.leftAnchor.constraint(equalTo: rootView.leftAnchor),
+            contentView.rightAnchor.constraint(equalTo: rootView.rightAnchor),
+            contentView.topAnchor.constraint(equalTo: rootView.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: rootView.bottomAnchor),
+        ])
+        self.defaultRootView = rootView
+        return rootView
     }
 }
 
 
 open class _FlowController: _ViewController {
 
-    fileprivate var defaultContainerViewController: UIViewController?
+    fileprivate var defaultContentViewController: UIViewController?
+    fileprivate var defaultRootView: UIView?
 
     @available(*, unavailable, message: "Use viewDidLoad to configure the view.")
     override public func loadView() {
-        guard let flow = self as? _FlowControllerRequirements else {
+        guard let flowC = self as? _FlowControllerRequirements else {
             preconditionFailure("_FlowController subclasses must conform to _FlowControllerRequirements.")
         }
-
-        self.view = flow._rootView
-
-        let childVC = flow._containerViewController
-        guard let childView = childVC.view else {
-            preconditionFailure("ViewController.view must not be nil.")
-        }
-        childVC.willMove(toParent: self)
-
-        let container = flow.childViewContainer
-        container.addSubview(childView)
-        childView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            childView.topAnchor.constraint(equalTo: container.topAnchor),
-            childView.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            childView.leftAnchor.constraint(equalTo: container.leftAnchor),
-            childView.rightAnchor.constraint(equalTo: container.rightAnchor),
-        ])
-
-        addChild(childVC)
-    }
-}
-
-
-// MARK: - Additions
-
-/// If a rootVC is not specified then use the containerVC.
-public extension FlowControllerRequirements where Self: _FlowController, RootViewController == UIViewController {
-
-    var rootViewController: RootViewController {
-        _containerViewController
+        let contentVC = flowC._contentViewController
+        contentVC.willMove(toParent: self)
+        self.view = flowC._rootView
+        addChild(contentVC)
     }
 }
 
 
 // MARK: - UINavigationController additions
 
-/// Creates and configures a  NavigationController if one is not explicit set. Allows the vc to be declared with only the RootViewController
-public extension FlowControllerRequirements where Self: _FlowController, ContainerViewController: UINavigationController {
-
-    var containerViewController: ContainerViewController {
-        // If we all ready have the container then we're done
-        if let defaultContainerViewController = defaultContainerViewController as? ContainerViewController {
-            return defaultContainerViewController
-        }
-        // Create and store the container
-        let containerViewController = ContainerViewController()
-        defaultContainerViewController = containerViewController
-        // Configure with the root
-        guard rootViewController != containerViewController else {
-            preconditionFailure("No rootViewController provided. FlowController class must implement either `containerViewController` or `rootViewController`. \(type(of: self)) provides neither.")
-        }
-        containerViewController.setViewControllers([rootViewController], animated: false)
-        return containerViewController
-    }
-}
-
-
 /// Core navigation methods
-public extension FlowControllerRequirements where ContainerViewController: UINavigationController {
+public extension FlowControllerRequirements where ContentViewController: UINavigationController {
 
     func push(_ viewController: UIViewController, animated: Bool) {
-        containerViewController.pushViewController(viewController, animated: animated)
+        contentViewController.pushViewController(viewController, animated: animated)
     }
 
     func pop(animated: Bool) {
-        containerViewController.popViewController(animated: animated)
+        contentViewController.popViewController(animated: animated)
     }
 
     func pop(to child: UIViewController, animated: Bool) {
-        containerViewController.popToViewController(child, animated: animated)
+        contentViewController.popToViewController(child, animated: animated)
     }
 
     func popToRoot(animated: Bool) {
-        containerViewController.popToRootViewController(animated: animated)
+        contentViewController.popToRootViewController(animated: animated)
     }
 }
