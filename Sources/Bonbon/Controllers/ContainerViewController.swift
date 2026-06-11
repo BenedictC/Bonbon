@@ -107,6 +107,10 @@ open class _ContainerViewController: _ViewController {
 /// Core navigation methods
 public extension ContainerViewControllerRequirements where ContentViewController: UINavigationController {
 
+    func setViewControllers(_ stack: [UIViewController], animated: Bool) {
+        contentViewController.setViewControllers(stack, animated: animated)
+    }
+
     func push(_ viewController: UIViewController, animated: Bool) {
         contentViewController.pushViewController(viewController, animated: animated)
     }
