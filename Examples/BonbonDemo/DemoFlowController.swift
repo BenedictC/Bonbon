@@ -4,7 +4,7 @@ import Bonbon
 import Combine
 
 
-class DemoFlowController: FlowController {
+class DemoFlowController: ContainerViewController {
 
     lazy var contentViewController = UITabBarController {
         UINavigationController {

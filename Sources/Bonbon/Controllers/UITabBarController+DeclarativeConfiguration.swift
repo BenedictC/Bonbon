@@ -38,8 +38,8 @@ private extension DefaultTabBarControllerDelegate {
 
     @discardableResult
     func attemptToPopToRoot(ofFlow viewController: UIViewController) -> Bool {
-        guard let flowController = viewController as? _FlowController,
-              let nestedNavController = flowController.children.first as? UINavigationController
+        guard let containerVC = viewController as? _ContainerViewController,
+              let nestedNavController = containerVC.children.first as? UINavigationController
         else {
             return false
         }
