@@ -18,9 +18,10 @@ public struct Cell<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: Group
 
     @MainActor
     public init(
+        preferredSize: NSCollectionLayoutSize? = nil,
         layoutGroupItemProvider: LayoutGroupItemProvider? = nil // It would be nicer to have a default argument but the compiler thinks the value breaks isolation despite everything being @MainActor
     ) {
-        self.layoutGroupItemProvider = layoutGroupItemProvider ?? Self.makeLayoutGroupItemProvider()
+        self.layoutGroupItemProvider = layoutGroupItemProvider ?? Self.makeLayoutGroupItemProvider(size: preferredSize)
     }
 
 

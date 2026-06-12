@@ -57,6 +57,7 @@ public extension HGroup {
     }
 
     init(
+        size preferredSize: NSCollectionLayoutSize? = nil,
         contentInsets: NSDirectionalEdgeInsets? = nil,
         edgeSpacing: NSCollectionLayoutEdgeSpacing? = nil,
         interItemSpacing: NSCollectionLayoutSpacing? = nil,
@@ -69,7 +70,7 @@ public extension HGroup {
             items: items,
             layoutGroupProvider: { environment in
                 // TODO: Should layoutSize be provided at init?
-                let layoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100))
+                let layoutSize = preferredSize ?? NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100))
                 let defaultItemSize = Self.itemLayoutSize(forItemCount: items.count)
                 let subitemLayouts = items.map { $0.makeLayoutGroupItem(defaultSize: defaultItemSize, environment: environment) }
                 let layoutGroup = NSCollectionLayoutGroup.horizontal(

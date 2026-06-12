@@ -9,6 +9,9 @@ public struct CompositeLayout<SectionIdentifier: Hashable, ItemIdentifier: Hasha
     // MARK: Properties
 
     public let behaviors: CollectionViewLayoutBehaviors<SectionIdentifier, ItemIdentifier>
+    let scrollDirection: UICollectionView.ScrollDirection?
+    let interSectionSpacing: CGFloat?
+    let contentInsetsReference: UIContentInsetsReference?
     let background: LayoutBackground?
     let boundarySupplements: [BoundarySupplement<Void>]
     let sections: [CompositeSection<SectionIdentifier, ItemIdentifier>]
@@ -39,8 +42,16 @@ public struct CompositeLayout<SectionIdentifier: Hashable, ItemIdentifier: Hasha
 
     public func makeLayout(dataSource: UICollectionViewDiffableDataSource<SectionIdentifier, ItemIdentifier>) -> UICollectionViewLayout {
         let configuration = UICollectionViewCompositionalLayoutConfiguration()
+        if let scrollDirection {
+            configuration.scrollDirection = scrollDirection
+        }
+        if let interSectionSpacing {
+            configuration.interSectionSpacing = interSectionSpacing
+        }
+        if let contentInsetsReference {
+            configuration.contentInsetsReference = contentInsetsReference
+        }
         configuration.boundarySupplementaryItems = boundarySupplements.map { $0.makeLayoutBoundarySupplementaryItem() }
-
         return UICollectionViewCompositionalLayout(
             sectionProvider: { [weak dataSource] sectionIndex, environment in
                 guard let dataSource else {
@@ -90,6 +101,9 @@ public extension CompositeLayout {
         indexElementsProvider: DiffableDataSource.IndexElementsProvider? = nil,
         reorderHandlers: DiffableDataSource.ReorderingHandlers? = nil,
         sectionSnapshotHandlers: DiffableDataSource.SectionSnapshotHandlers<ItemIdentifier>? = nil,
+        scrollDirection: UICollectionView.ScrollDirection? = nil,
+        interSectionSpacing: CGFloat? = nil,
+        contentInsetsReference: UIContentInsetsReference? = nil,
         background: LayoutBackground? = nil,
         header: LayoutHeader? = nil,
         footer: LayoutFooter? = nil,
@@ -107,6 +121,9 @@ public extension CompositeLayout {
                 reorderHandlers: reorderHandlers,
                 sectionSnapshotHandlers: sectionSnapshotHandlers
             ),
+            scrollDirection: scrollDirection,
+            interSectionSpacing: interSectionSpacing,
+            contentInsetsReference: contentInsetsReference,
             background: background,
             boundarySupplements: boundarySupplements,
             sections: sections()
@@ -117,6 +134,9 @@ public extension CompositeLayout {
         indexElementsProvider: DiffableDataSource.IndexElementsProvider? = nil,
         reorderHandlers: DiffableDataSource.ReorderingHandlers? = nil,
         sectionSnapshotHandlers: DiffableDataSource.SectionSnapshotHandlers<ItemIdentifier>? = nil,
+        scrollDirection: UICollectionView.ScrollDirection? = nil,
+        interSectionSpacing: CGFloat? = nil,
+        contentInsetsReference: UIContentInsetsReference? = nil,
         background: LayoutBackground? = nil,
         @ArrayBuilder<LayoutBoundarySupplement>
         boundarySupplements: () -> [LayoutBoundarySupplement],
@@ -129,6 +149,9 @@ public extension CompositeLayout {
                 reorderHandlers: reorderHandlers,
                 sectionSnapshotHandlers: sectionSnapshotHandlers
             ),
+            scrollDirection: scrollDirection,
+            interSectionSpacing: interSectionSpacing,
+            contentInsetsReference: contentInsetsReference,
             background: background,
             boundarySupplements: boundarySupplements(),
             sections: sections()
