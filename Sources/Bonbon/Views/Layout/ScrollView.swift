@@ -1,17 +1,17 @@
 import UIKit
 
 
-open class ScrollView<T: UIView>: UIScrollView {
+open class ScrollView<Content: UIView>: UIScrollView {
 
     // MARK: - Properties
 
     public final let axes: Axis
-    public final let content: T
+    public final let content: Content
 
 
     // MARK: - Instance life cycle
 
-    public init(axes: Axis = .vertical, keyboardDismissMode: UIScrollView.KeyboardDismissMode? = nil, delegate: UIScrollViewDelegate? = nil, content: T) {
+    public init(axes: Axis = .vertical, keyboardDismissMode: UIScrollView.KeyboardDismissMode? = nil, delegate: UIScrollViewDelegate? = nil, content: Content) {
         self.axes = axes
         self.content = content
         super.init(frame: .zero)
@@ -50,7 +50,12 @@ open class ScrollView<T: UIView>: UIScrollView {
 
 public extension ScrollView {
 
-    convenience init(axes: Axis = .vertical, keyboardDismissMode: UIScrollView.KeyboardDismissMode? = nil, delegate: UIScrollViewDelegate? = nil, contentBuilder: () -> T) {
+    convenience init(
+        axes: Axis = .vertical,
+        keyboardDismissMode: UIScrollView.KeyboardDismissMode? = nil,
+        delegate: UIScrollViewDelegate? = nil,
+        contentBuilder: () -> Content
+    ) {
         let content = contentBuilder()
         self.init(axes: axes, keyboardDismissMode: keyboardDismissMode, delegate: delegate, content: content)
     }
