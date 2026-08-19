@@ -5,16 +5,18 @@ public class Container<Content>: UIView {
 
     // MARK: Properties
 
-    public internal(set) var content: Content!
+    public var content: Content { _content }
+    public var container: UIView { self }
+
     public var allowsPassThrough: Bool = false
 
-    public var container: UIView { self }
+    private var _content: Content!
 
 
     // MARK: Instance life cycle
 
     public init(unarrangedContent: Content!) {
-        self.content = unarrangedContent
+        self._content = unarrangedContent
         super.init(frame: .zero)
     }
 
