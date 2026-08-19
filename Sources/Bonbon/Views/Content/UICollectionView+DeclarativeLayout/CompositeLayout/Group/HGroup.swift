@@ -51,10 +51,13 @@ public struct HGroup<SectionIdentifier: Hashable, ItemIdentifier: Hashable>: Gro
 
 public extension HGroup {
 
+    static var defaultSize: NSCollectionLayoutSize { NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100)) }
+
     internal static func itemLayoutSize(forItemCount itemCount: Int) -> NSCollectionLayoutSize {
         let fraction = 1.0 / Double(itemCount)
         return NSCollectionLayoutSize(widthDimension: .fractionalWidth(fraction), heightDimension: .fractionalHeight(1))
     }
+
 
     init(
         size preferredSize: NSCollectionLayoutSize? = nil,
@@ -69,12 +72,12 @@ public extension HGroup {
         self.init(
             items: items,
             layoutGroupProvider: { environment in
-                // TODO: Should layoutSize be provided at init?
-                let layoutSize = preferredSize ?? NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100))
-                let defaultItemSize = Self.itemLayoutSize(forItemCount: items.count)
-                let subitemLayouts = items.map { $0.makeLayoutGroupItem(defaultSize: defaultItemSize, environment: environment) }
+                // This should be a default parameter value but Swift concurrency prevents that. Seems like a compiler bug.
+                let groupSize = preferredSize ?? Self.defaultSize
+                let itemSize = Self.itemLayoutSize(forItemCount: items.count)
+                let subitemLayouts = items.map { $0.makeLayoutGroupItem(defaultSize: itemSize, environment: environment) }
                 let layoutGroup = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: layoutSize,
+                    layoutSize: groupSize,
                     subitems: subitemLayouts,
                 )
                 if let contentInsets {
@@ -93,42 +96,44 @@ public extension HGroup {
 }
 
 
-//public extension HGroup {
-//
-//    init(
-//        contentInsets: NSDirectionalEdgeInsets? = nil,
-//        edgeSpacing: NSCollectionLayoutEdgeSpacing? = nil,
-//        interItemSpacing: NSCollectionLayoutSpacing? = nil,
-//        minimumColumnWidth: CGFloat,
-//        item itemBuilder: () -> any GroupItem<SectionIdentifier, ItemIdentifier>
-//    ) {
-//        let item = itemBuilder()
-//        self.init(
-//            items: [item.eraseToAnyGroupItem()],
-//            layoutGroupProvider: { environment in
-//                // TODO: Should layoutSize be provided at init?
-//                let layoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100))
-//                var repetitions = max(1, Int((environment.container.effectiveContentSize.width / minimumColumnWidth).nextDown))
-//                print(repetitions)
-//                let defaultItemSize = Self.itemLayoutSize(forItemCount: repetitions)
-//                let itemLayout = item.makeLayoutGroupItem(defaultSize: defaultItemSize, environment: environment)
-//
-//                let layoutGroup = NSCollectionLayoutGroup.horizontal(
-//                    layoutSize: layoutSize,
-//                    repeatingSubitem: itemLayout,
-//                    count: repetitions
-//                )
-//                if let contentInsets {
-//                    layoutGroup.contentInsets = contentInsets
-//                }
-//                if let edgeSpacing {
-//                    layoutGroup.edgeSpacing = edgeSpacing
-//                }
-//                if let interItemSpacing {
-//                    layoutGroup.interItemSpacing = interItemSpacing
-//                }
-//                return layoutGroup
-//            }
-//        )
-//    }
-//}
+// MARK: - Specialized behaviour
+
+public extension HGroup {
+
+    init(
+        contentInsets: NSDirectionalEdgeInsets? = nil,
+        edgeSpacing: NSCollectionLayoutEdgeSpacing? = nil,
+        interItemSpacing: NSCollectionLayoutSpacing? = nil,
+        minimumColumnWidth: CGFloat,
+        item itemBuilder: () -> any GroupItem<SectionIdentifier, ItemIdentifier>
+    ) {
+        let item = itemBuilder()
+        self.init(
+            items: [item.eraseToAnyGroupItem()],
+            layoutGroupProvider: { environment in
+                // TODO: Should layoutSize be provided at init?
+                let layoutSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(100))
+                let preferredColumnCount = Int((environment.container.effectiveContentSize.width / minimumColumnWidth))
+                let columnCount = max(1, preferredColumnCount)
+                let defaultItemSize = Self.itemLayoutSize(forItemCount: columnCount)
+                let itemLayout = item.makeLayoutGroupItem(defaultSize: defaultItemSize, environment: environment)
+
+                let layoutGroup = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: layoutSize,
+                    repeatingSubitem: itemLayout,
+                    count: columnCount
+                )
+                if let contentInsets {
+                    layoutGroup.contentInsets = contentInsets
+                }
+                if let edgeSpacing {
+                    layoutGroup.edgeSpacing = edgeSpacing
+                }
+                if let interItemSpacing {
+                    layoutGroup.interItemSpacing = interItemSpacing
+                }
+                return layoutGroup
+            }
+        )
+    }
+}
