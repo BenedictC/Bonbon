@@ -6,7 +6,7 @@ import UIKit
 public extension SomeView {
 
     func padding(_ insets: UIEdgeInsets) -> Container<Self> {
-        let group = Container(content: self)
+        let group = Container(unarrangedContent: self)
         group.addSubview(self)
         self.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -42,7 +42,7 @@ public extension SomeView {
 public extension SomeView {
 
     func padding(_ insets: NSDirectionalEdgeInsets) -> Container<Self> {
-        let group = Container(content: self)
+        let group = Container(unarrangedContent: self)
         group.addSubview(self)
         self.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([

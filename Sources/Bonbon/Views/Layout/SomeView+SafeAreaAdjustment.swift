@@ -49,8 +49,8 @@ public class SafeAreaAdjustmentContainer<Content: UIView>: Container<Content>, E
     init(content: Content, safeAreaIgnoringRegions regions: SafeAreaRegions, edgesIgnoringSafeArea: UIRectEdge) {
         self.safeAreaIgnoringRegions = regions
         self.optionalEdgesIgnoringSafeArea = edgesIgnoringSafeArea
-        super.init(content: content)
-       
+        super.init(unarrangedContent: content)
+
         self.contentEdgeConstraints = addAndFill(subview: content, edgesIgnoringSafeArea: edgesIgnoringSafeArea)
 
         if regions.contains(.keyboard) {

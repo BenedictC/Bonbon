@@ -17,8 +17,8 @@ public class ZStackFillAdjustmentContainer<T: UIView>: Container<T>, ZStackFillB
 
     init(content: T, zStackFillAxes: Axis?) {
         self.optionalZStackFillAxes = zStackFillAxes
-        super.init(content: content)
-
+        super.init(unarrangedContent: content)
+        content.translatesAutoresizingMaskIntoConstraints = false
         addAndFill(subview: content, edgesIgnoringSafeArea: .all)
     }
 

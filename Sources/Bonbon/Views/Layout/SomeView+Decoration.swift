@@ -17,7 +17,7 @@ public extension SomeView {
 
     func overlay<O: UIView>(alignment: DecorationAlignment, view overlayBuilder: () -> O) -> DecorationContainer<Self, O> {
         let overlay = overlayBuilder()
-        let container = DecorationContainer(content: (self, overlay))
+        let container = DecorationContainer(unarrangedContent: (self, overlay))
 
         self.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(self)
@@ -48,7 +48,7 @@ public extension SomeView {
 
     func background<O: UIView>(alignment: DecorationAlignment = .fill, view backgroundBuilder: () -> O) -> DecorationContainer<Self, O> {
         let background = backgroundBuilder()
-        let container = DecorationContainer(content: (self, background))
+        let container = DecorationContainer(unarrangedContent: (self, background))
 
         self.translatesAutoresizingMaskIntoConstraints = false
         container.addSubview(self)
